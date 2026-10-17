@@ -51,6 +51,9 @@ if (is_post()) {
     }
     foreach ($groups as $fields) {
         foreach ($fields as $key => [$label, $type]) {
+            if (setting_locked($key)) {
+                continue; // controlled by .env
+            }
             if ($type === 'bool') {
                 save_setting($key, isset($_POST[$key]) ? '1' : '0');
             } elseif ($type === 'password') {
@@ -80,22 +83,25 @@ require __DIR__ . '/../includes/layout/settings_tabs.php';
     <?php foreach ($groups as $title => $fields): ?>
       <div class="card p-6 space-y-4 self-start">
         <h3 class="card-title"><?= e($title) ?></h3>
-        <?php foreach ($fields as $key => [$label, $type]): $val = setting($key); ?>
+        <?php if (array_filter(array_keys($fields), 'setting_locked')): ?>
+          <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">Some fields are set in the server's <span class="font-mono">.env</span> file and cannot be changed here.</p>
+        <?php endif; ?>
+        <?php foreach ($fields as $key => [$label, $type]): $val = setting($key); $lock = setting_locked($key) ? ' disabled' : ''; ?>
           <?php if ($type === 'bool'): ?>
-            <label class="flex items-center gap-2 text-xs font-semibold text-slate-700"><input type="checkbox" name="<?= e($key) ?>" value="1" <?= $val === '1' ? 'checked' : '' ?> class="rounded border-slate-300 text-cyan-600"><?= e($label) ?></label>
+            <label class="flex items-center gap-2 text-xs font-semibold text-slate-700"><input type="checkbox" name="<?= e($key) ?>" value="1" <?= $val === '1' ? 'checked' : '' ?><?= $lock ?> class="rounded border-slate-300 text-cyan-600"><?= e($label) ?></label>
           <?php else: ?>
             <div>
               <label class="form-label" for="<?= e($key) ?>"><?= e($label) ?></label>
               <?php if (is_array($type)): ?>
-                <select id="<?= e($key) ?>" name="<?= e($key) ?>" class="form-input"><?= select_options($type, $val) ?></select>
+                <select id="<?= e($key) ?>" name="<?= e($key) ?>" class="form-input"<?= $lock ?>><?= select_options($type, $val) ?></select>
               <?php elseif ($type === 'textarea'): ?>
                 <textarea id="<?= e($key) ?>" name="<?= e($key) ?>" rows="2" class="form-input"><?= e($val) ?></textarea>
               <?php elseif ($type === 'password'): ?>
-                <input type="password" id="<?= e($key) ?>" name="<?= e($key) ?>" autocomplete="new-password" placeholder="<?= $val !== '' ? '•••••••• (saved – leave blank to keep)' : '' ?>" class="form-input">
+                <input type="password" id="<?= e($key) ?>" name="<?= e($key) ?>"<?= $lock ?> autocomplete="new-password" placeholder="<?= $val !== '' ? '•••••••• (saved – leave blank to keep)' : '' ?>" class="form-input">
               <?php elseif ($type === 'datetime-local'): ?>
                 <input type="datetime-local" id="<?= e($key) ?>" name="<?= e($key) ?>" value="<?= $val ? e(date('Y-m-d\TH:i', strtotime($val))) : '' ?>" class="form-input">
               <?php else: ?>
-                <input type="<?= e($type) ?>" id="<?= e($key) ?>" name="<?= e($key) ?>" value="<?= e($val) ?>" class="form-input">
+                <input type="<?= e($type) ?>" id="<?= e($key) ?>" name="<?= e($key) ?>" value="<?= e($val) ?>" class="form-input"<?= $lock ?>>
               <?php endif; ?>
             </div>
           <?php endif; ?>

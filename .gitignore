@@ -1,6 +1,6 @@
 /vendor/
 /node_modules/
-/config/config.php
+/.env
 /storage/uploads/*/*
 !/storage/uploads/*/.gitkeep
 /storage/logs/*

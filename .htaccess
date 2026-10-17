@@ -37,7 +37,7 @@ ErrorDocument 404 /404.php
   Header always set X-Content-Type-Options "nosniff"
 </IfModule>
 
-<FilesMatch "\.(sql|log|md|lock|ini|sh)$">
+<FilesMatch "(^\.env.*|\.(sql|log|md|lock|ini|sh|yml))$">
   Require all denied
 </FilesMatch>
 

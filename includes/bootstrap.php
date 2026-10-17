@@ -8,12 +8,13 @@ declare(strict_types=1);
 define('APP_ROOT', dirname(__DIR__));
 define('STORAGE_PATH', APP_ROOT . '/storage');
 
-$configFile = APP_ROOT . '/config/config.php';
-if (!is_file($configFile)) {
+require_once __DIR__ . '/env.php';
+load_env(APP_ROOT . '/.env');
+if (!is_file(APP_ROOT . '/.env') && getenv('DB_DATABASE') === false) {
     http_response_code(500);
-    exit('Configuration missing. Copy config/config.example.php to config/config.php and update it.');
+    exit('Configuration missing. Copy .env.example to .env and update it.');
 }
-$GLOBALS['config'] = require $configFile;
+$GLOBALS['config'] = require APP_ROOT . '/config/config.php';
 
 require_once APP_ROOT . '/vendor/autoload.php';
 

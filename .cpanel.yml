@@ -1,0 +1,13 @@
+---
+# cPanel Git™ Version Control deployment
+# Repository: /home/sportsby/repositories/science_excibision_campuschamions
+# Web root:   /home/sportsby/science_expo.sportsmis.com
+#
+# Deploy from cPanel > Git Version Control > Manage > "Pull or Deploy" > Deploy HEAD Commit.
+# The heavy lifting is in bin/deploy.sh (copy files, composer install, storage folders).
+# The server's .env, uploaded files and logs are never overwritten.
+deployment:
+  tasks:
+    - export REPOPATH=/home/sportsby/repositories/science_excibision_campuschamions
+    - export DEPLOYPATH=/home/sportsby/science_expo.sportsmis.com
+    - /bin/bash $REPOPATH/bin/deploy.sh $REPOPATH $DEPLOYPATH

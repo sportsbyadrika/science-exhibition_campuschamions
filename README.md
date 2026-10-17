@@ -32,7 +32,7 @@ Page URLs never show the `.php` extension, for example `/register`, `/institutio
 composer install --no-dev
 
 # 2. Configuration
-cp config/config.example.php config/config.php      # set DB credentials + app.url
+cp .env.example .env      # set APP_URL, DB_* and (optionally) MAIL_* values
 
 # 3. Database: create an empty DB, then run the installer (creates tables, seed masters, super admin)
 mysql -u root -e "CREATE DATABASE science_fair CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
@@ -44,6 +44,41 @@ chmod -R 775 storage
 ```
 
 Then sign in at `/` with the admin account. Open **Settings** and fill in the event details, the bank account and SMTP. Use **Send Test Email** to check the SMTP settings.
+
+### Configuration (.env)
+
+All server-specific values are read from `.env` in the project root, next to `index.php`. `config/config.php` only maps these to defaults. `.env` is git-ignored and blocked from web access.
+
+| Key | Purpose |
+|-----|---------|
+| `APP_URL`, `APP_ENV`, `APP_TIMEZONE` | Public URL (no trailing slash); `production` hides PHP errors |
+| `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | MySQL connection |
+| `UPLOAD_MAX_PHOTO_KB`, `UPLOAD_MAX_RECEIPT_KB` | Upload limits |
+| `MAIL_ENABLED`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_ENCRYPTION`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | PHPMailer SMTP. When `MAIL_HOST` is set, these values override the SMTP fields in Admin → Settings and those fields become read-only there. |
+
+### cPanel deployment (Git Version Control)
+
+* Repository clone: `/home/sportsby/repositories/science_excibision_campuschamions`
+* Web root (document root of the domain): `/home/sportsby/science_expo.sportsmis.com`
+
+`.cpanel.yml` runs `bin/deploy.sh`, which does the following:
+1. Copies the application files into the web root. It never overwrites `.env`, `vendor/`, `storage/uploads`, `storage/logs` or `storage/cache`, and it never deletes anything already in the web root.
+2. Creates the writable `storage/` folders.
+3. Runs `composer install --no-dev` with cPanel's PHP 8.x CLI (`/opt/cpanel/ea-php83` and similar) and `/opt/cpanel/composer/bin/composer`.
+4. If the web root has no `.env`, copies `.env.example` there (chmod 600) so you can edit it.
+
+First deployment:
+1. In cPanel → **MySQL Databases**, create the database and user and grant all privileges.
+2. In cPanel → **Git Version Control**, clone the repository to the path above. Open **Manage → Pull or Deploy**, then **Update from Remote** and **Deploy HEAD Commit**.
+3. Edit `/home/sportsby/science_expo.sportsmis.com/.env` with the real DB and mail values.
+4. In cPanel → **Terminal**, run the installer once:
+   ```bash
+   cd /home/sportsby/science_expo.sportsmis.com
+   /opt/cpanel/ea-php83/root/usr/bin/php bin/install.php --super-email=you@example.org --super-pass='StrongPass123'
+   ```
+5. Make sure the domain uses PHP 8.1 or newer (cPanel → **MultiPHP Manager**).
+
+For later releases, push to GitHub, then in cPanel click **Update from Remote** → **Deploy HEAD Commit**. The deploy log is in `storage/logs/deploy.log`.
 
 ### Front-end assets
 

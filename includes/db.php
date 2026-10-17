@@ -63,8 +63,38 @@ function settings(): array
     return $cache;
 }
 
+/** Settings that can be pinned from .env (env wins when set). */
+const ENV_SETTING_OVERRIDES = [
+    'mail_enabled'    => 'MAIL_ENABLED',
+    'smtp_host'       => 'MAIL_HOST',
+    'smtp_port'       => 'MAIL_PORT',
+    'smtp_secure'     => 'MAIL_ENCRYPTION',
+    'smtp_username'   => 'MAIL_USERNAME',
+    'smtp_password'   => 'MAIL_PASSWORD',
+    'mail_from_email' => 'MAIL_FROM_ADDRESS',
+    'mail_from_name'  => 'MAIL_FROM_NAME',
+];
+
+/** True when the SMTP settings are controlled by .env (MAIL_HOST set). */
+function mail_from_env(): bool
+{
+    return env('MAIL_HOST') !== null;
+}
+
+/** True when a setting's value is pinned by .env and cannot be edited in Admin > Settings. */
+function setting_locked(string $key): bool
+{
+    return isset(ENV_SETTING_OVERRIDES[$key])
+        && ($key === 'mail_enabled' || mail_from_env())
+        && env(ENV_SETTING_OVERRIDES[$key]) !== null;
+}
+
 function setting(string $key, string $default = ''): string
 {
+    if (setting_locked($key)) {
+        $v = env(ENV_SETTING_OVERRIDES[$key]);
+        return is_bool($v) ? ($v ? '1' : '0') : (string) $v;
+    }
     $s = settings();
     return ($s[$key] ?? '') !== '' ? $s[$key] : $default;
 }
