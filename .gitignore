@@ -1,0 +1,11 @@
+/vendor/
+/node_modules/
+/config/config.php
+/storage/uploads/*/*
+!/storage/uploads/*/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*
+.DS_Store
+.idea/
+.vscode/

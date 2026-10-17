@@ -1,0 +1,17 @@
+{
+    "name": "sahodaya/science-fair-portal",
+    "description": "CBSE South Zone Sahodaya Complex Science Exhibition - Registration & Management Portal",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.1",
+        "ext-pdo": "*",
+        "ext-mbstring": "*",
+        "phpmailer/phpmailer": "^6.9",
+        "dompdf/dompdf": "^3.1"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
