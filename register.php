@@ -8,7 +8,7 @@ if ($u = current_user()) {
     redirect(home_for($u));
 }
 
-$designations = ['Principal', 'Senior Principal', 'Vice Principal', 'Headmistress / Headmaster', 'Director'];
+$designations = head_designations();
 $errors = [];
 
 if (is_post()) {

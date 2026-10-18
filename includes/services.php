@@ -11,6 +11,12 @@ function app_title(): string
     return setting('suite_title', 'Science Fair Management Suite');
 }
 
+/** Allowed Head of Institution designations. */
+function head_designations(): array
+{
+    return ['Principal', 'Senior Principal', 'Vice Principal', 'Headmistress / Headmaster', 'Director'];
+}
+
 /** Result positions (value => label). */
 function result_positions(): array
 {

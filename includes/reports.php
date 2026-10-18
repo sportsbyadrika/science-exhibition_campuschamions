@@ -13,8 +13,12 @@ function rpt_empty(string $msg = 'No records found.'): string
 
 function rpt_institution_block(array $inst): string
 {
+    $logo = !empty($inst['logo_path']) && ($p = upload_path($inst['logo_path']))
+        ? '<img src="' . e($p) . '" style="width:34px;height:34px;vertical-align:middle;margin-right:8px">' : '';
+    $address = trim(($inst['address'] ?? '') . (($inst['district'] ?? '') ? ', ' . $inst['district'] : ''), ', ');
     return '<table class="kv">'
-        . '<tr><td class="k">Institution</td><td colspan="3" class="bold">' . e($inst['name']) . '</td></tr>'
+        . '<tr><td class="k">Institution</td><td colspan="3" class="bold">' . $logo . e($inst['name'])
+        . ($address !== '' ? '<br><span class="muted small" style="font-weight:normal">' . e($address) . '</span>' : '') . '</td></tr>'
         . '<tr><td class="k">Affiliation Code</td><td class="mono">' . e($inst['affiliation_code']) . '</td><td class="k">Reference ID</td><td class="mono">' . e($inst['ref_no']) . '</td></tr>'
         . '<tr><td class="k">Head of Institution</td><td>' . e($inst['head_name']) . '<br><span class="muted small">' . e($inst['head_designation']) . ' • ' . e($inst['head_phone']) . ' • ' . e($inst['head_email']) . '</span></td>'
         . '<td class="k">Coordinator (e-Admin)</td><td>' . e($inst['coord_name']) . '<br><span class="muted small">' . e($inst['coord_designation']) . ' • ' . e($inst['coord_phone']) . ' • ' . e($inst['coord_email']) . '</span></td></tr>'
@@ -39,7 +43,7 @@ function rpt_teams_table(array $teams, bool $photos = true): string
     if (!$teams) {
         return rpt_empty('No team entries registered.');
     }
-    $h = '<table class="grid"><thead><tr><th style="width:4%">#</th><th style="width:15%">Team Code</th><th>Event / Category / Project</th><th style="width:' . ($photos ? '38' : '34') . '%">Participants</th><th style="width:9%" class="text-right">Fee</th><th style="width:9%">Status</th></tr></thead><tbody>';
+    $h = '<table class="grid"><thead><tr><th style="width:4%">#</th><th style="width:15%">Team Code</th><th>Event / Category / Team Name</th><th style="width:' . ($photos ? '38' : '34') . '%">Participants</th><th style="width:9%" class="text-right">Fee</th><th style="width:9%">Status</th></tr></thead><tbody>';
     $total = 0;
     foreach ($teams as $i => $t) {
         $members = '';

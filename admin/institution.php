@@ -28,7 +28,10 @@ $hidden = fn (string $action, array $extra = []) => csrf_field() . '<input type=
 <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-6">
   <div>
     <a href="<?= url('admin/institutions') ?>" class="text-xs text-cyan-700 hover:underline flex items-center mb-1"><?= icon('chevron-left', 'w-3.5 h-3.5') ?>Back to Institutions</a>
-    <h2 class="text-xl font-black text-slate-900"><?= e($inst['name']) ?></h2>
+    <h2 class="text-xl font-black text-slate-900 flex items-center gap-3">
+      <?php if (!empty($inst['logo_path'])): ?><img src="<?= media_url('logo', (int) $inst['id']) ?>" alt="" class="w-11 h-11 rounded-lg border border-slate-200 object-contain bg-white"><?php endif; ?>
+      <?= e($inst['name']) ?>
+    </h2>
     <p class="text-xs text-slate-500 font-mono">Aff. <?= e($inst['affiliation_code']) ?> • <?= e($inst['ref_no']) ?> • Registered <?= e(fmt_datetime($inst['created_at'])) ?></p>
     <div class="flex gap-2 mt-2"><?= status_badge($inst['status']) ?><?= status_badge($inst['submission_status']) ?></div>
   </div>

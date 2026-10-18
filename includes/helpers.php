@@ -215,7 +215,7 @@ function valid_phone(string $phone): bool
  * Save a base64 data-URL image (from the client side cropper) as JPEG.
  * Returns the relative path under storage/uploads or throws on invalid input.
  */
-function save_data_url_image(string $dataUrl, string $folder, int $maxKb): string
+function save_data_url_image(string $dataUrl, string $folder, int $maxKb, string $format = 'jpg'): string
 {
     if (!preg_match('#^data:image/(jpeg|png|webp);base64,(.+)$#', $dataUrl, $m)) {
         throw new RuntimeException('Invalid photo data.');
@@ -233,12 +233,17 @@ function save_data_url_image(string $dataUrl, string $folder, int $maxKb): strin
     if (!$img) {
         throw new RuntimeException('Unable to read photo.');
     }
-    $name = $folder . '/' . date('Y/m') . '/' . bin2hex(random_bytes(12)) . '.jpg';
+    $name = $folder . '/' . date('Y/m') . '/' . bin2hex(random_bytes(12)) . ($format === 'png' ? '.png' : '.jpg');
     $full = STORAGE_PATH . '/uploads/' . $name;
     if (!is_dir(dirname($full))) {
         mkdir(dirname($full), 0775, true);
     }
-    imagejpeg($img, $full, 88);
+    if ($format === 'png') {
+        imagesavealpha($img, true); // keep transparent logo backgrounds
+        imagepng($img, $full, 6);
+    } else {
+        imagejpeg($img, $full, 88);
+    }
     imagedestroy($img);
     return $name;
 }

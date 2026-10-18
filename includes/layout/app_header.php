@@ -64,6 +64,9 @@ require __DIR__ . '/head.php';
             <span class="text-xs font-bold text-slate-200"><?= e($user['name']) ?><?= $isAdmin ? '' : ' (e-Admin)' ?></span>
             <span class="text-[11px] text-slate-400 max-w-xs truncate"><?= e($subLine) ?></span>
           </div>
+          <?php if (!$isAdmin && !empty($inst['logo_path'])): ?>
+            <a href="<?= $profileUrl ?>" title="Institution profile"><img src="<?= media_url('logo', (int) $inst['id'], ['v' => substr(md5($inst['logo_path']), 0, 8)]) ?>" alt="" class="hidden md:block w-10 h-10 rounded-lg bg-white object-contain p-0.5 border border-slate-700"></a>
+          <?php endif; ?>
           <a href="<?= $profileUrl ?>" title="My Profile & Password" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition border border-slate-700">
             <?= icon('user-round-cog') ?>
           </a>

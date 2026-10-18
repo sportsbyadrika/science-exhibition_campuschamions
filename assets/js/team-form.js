@@ -56,9 +56,23 @@
     });
   }
 
-  eventSel.addEventListener('change', renderCategories);
-  catSel.addEventListener('change', renderClasses);
+  // Suggested team name: "<Institution> <Category> - Team <n>" (only replaces an empty or previously suggested value)
+  const nameInput = document.getElementById('project_title');
+  let lastSuggestion = '';
+  function suggestName() {
+    const cat = findCat();
+    if (!cat || !nameInput) return;
+    const n = ((cfg.categoryTeamCounts || {})[cat.id] || 0) + 1;
+    const suggestion = cfg.institution + ' ' + cat.name + ' - Team ' + n;
+    const current = nameInput.value.trim();
+    if (current === '' || current === lastSuggestion) nameInput.value = suggestion;
+    lastSuggestion = suggestion;
+  }
+
+  eventSel.addEventListener('change', () => { renderCategories(); suggestName(); });
+  catSel.addEventListener('change', () => { renderClasses(); suggestName(); });
   renderCategories();
+  if (nameInput && nameInput.value.trim() === '') suggestName();
 
   // ---------------- Photo cropper ----------------
   const modal = document.getElementById('cropperModal');
@@ -109,7 +123,7 @@
     const errors = [];
     if (!ev) errors.push('Please select an event.');
     if (!catSel.value) errors.push('Please select a category.');
-    if (!document.getElementById('project_title').value.trim()) errors.push('Please enter the project title.');
+    if (!document.getElementById('project_title').value.trim()) errors.push('Please enter the team name.');
     if (ev) {
       let filled = 0;
       slots.forEach((slot) => {

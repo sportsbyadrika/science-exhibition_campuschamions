@@ -3,6 +3,7 @@
  * Serves protected uploads (student photos, payment proofs) after an ownership check.
  *   /media?t=photo&id={team_member_id}
  *   /media?t=payment&id={payment_id}
+ *   /media?t=logo&id={institution_id}
  */
 require __DIR__ . '/includes/bootstrap.php';
 
@@ -13,6 +14,7 @@ $id = input_int('id');
 $row = match ($type) {
     'photo' => db_one('SELECT m.photo_path path, t.institution_id FROM team_members m JOIN teams t ON t.id = m.team_id WHERE m.id = ?', [$id]),
     'payment' => db_one('SELECT proof_path path, institution_id FROM payments WHERE id = ?', [$id]),
+    'logo' => db_one('SELECT logo_path path, id institution_id FROM institutions WHERE id = ?', [$id]),
     default => null,
 };
 if (!$row || (!is_admin_role($user) && (int) $row['institution_id'] !== (int) $user['institution_id'])) {

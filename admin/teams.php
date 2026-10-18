@@ -42,7 +42,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
     <select name="event_id" class="form-input-sm !w-auto"><?= select_options(array_column($events, 'name', 'id'), $eventId, true, 'All Events') ?></select>
     <select name="category_id" class="form-input-sm !w-auto"><?= select_options(array_column($cats, 'name', 'id'), $categoryId, true, 'All Categories') ?></select>
     <select name="status" class="form-input-sm !w-auto"><?= select_options(['' => 'All Status', 'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'], $status) ?></select>
-    <input type="search" name="q" value="<?= e($q) ?>" placeholder="Institution / team code / title" class="form-input-sm !w-60">
+    <input type="search" name="q" value="<?= e($q) ?>" placeholder="Institution / team code / team name" class="form-input-sm !w-60">
     <button class="btn-dark btn-sm"><?= icon('filter', 'w-3.5 h-3.5') ?>Filter</button>
   </form>
 
@@ -57,7 +57,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
     </div>
     <div class="table-wrap">
       <table class="data-table">
-        <thead><tr><th><input type="checkbox" onclick="document.querySelectorAll('.row-check').forEach(c => c.checked = this.checked)"></th><th>Team</th><th>Institution</th><th>Event / Category / Project</th><th>Students</th><th class="!text-right">Fee</th><th>Status</th></tr></thead>
+        <thead><tr><th><input type="checkbox" onclick="document.querySelectorAll('.row-check').forEach(c => c.checked = this.checked)"></th><th>Team</th><th>Institution</th><th>Event / Category / Team Name</th><th>Students</th><th class="!text-right">Fee</th><th>Status</th></tr></thead>
         <tbody>
         <?php foreach ($teams as $t): ?>
           <tr>

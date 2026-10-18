@@ -69,7 +69,7 @@ if (config('app.env') === 'development') {
     ini_set('display_errors', '0');
 }
 
-foreach (['/logs', '/cache', '/uploads/photos', '/uploads/payments'] as $dir) {
+foreach (['/logs', '/cache', '/uploads/photos', '/uploads/payments', '/uploads/logos'] as $dir) {
     if (!is_dir(STORAGE_PATH . $dir)) {
         @mkdir(STORAGE_PATH . $dir, 0755, true);
     }

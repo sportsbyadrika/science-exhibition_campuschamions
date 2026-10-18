@@ -85,7 +85,7 @@ require __DIR__ . '/includes/layout/public_header.php';
           <div class="px-5 pt-4 pb-2 text-xs font-bold uppercase tracking-wider text-teal-700"><?= e($catName) ?></div>
           <div class="table-wrap">
             <table class="data-table">
-              <thead><tr><th>Position</th><th>Institution</th><th>Project</th><th>Students</th><th>Grade</th></tr></thead>
+              <thead><tr><th>Position</th><th>Institution</th><th>Team Name</th><th>Students</th><th>Grade</th></tr></thead>
               <tbody>
                 <?php foreach ($list as $r): ?>
                   <tr>

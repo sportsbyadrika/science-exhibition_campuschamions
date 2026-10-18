@@ -131,7 +131,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
         </div>
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr><th>Team</th><th>Institution / Project</th><th>Students</th><th>Position</th><th>Grade</th><th>Remarks</th></tr></thead>
+            <thead><tr><th>Team</th><th>Institution / Team Name</th><th>Students</th><th>Position</th><th>Grade</th><th>Remarks</th></tr></thead>
             <tbody>
             <?php foreach ($teams as $t): $tid = (int) $t['id']; ?>
               <tr>
