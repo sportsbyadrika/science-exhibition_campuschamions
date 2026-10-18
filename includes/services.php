@@ -5,6 +5,12 @@ declare(strict_types=1);
  * Domain helpers shared by the admin and institution modules
  * ------------------------------------------------------------------- */
 
+/** New participation requests are approved automatically (admins can still reject them later). */
+function auto_approve_institutions(): bool
+{
+    return setting('auto_approve_institutions', '1') === '1';
+}
+
 function registration_is_open(): bool
 {
     if (setting('registration_open', '1') !== '1') {
@@ -208,11 +214,11 @@ function notify_registration(array $inst): void
             'Head of Institution' => $inst['head_name'] . ' (' . $inst['head_designation'] . ')',
             'Coordinator (e-Admin)' => $inst['coord_name'],
             'Login ID' => $inst['coord_email'],
-            'Status' => setting('require_institution_approval', '1') === '1' ? 'Pending Zone Approval' : 'Active',
+            'Status' => $inst['status'] === 'approved' ? 'Approved' : 'Pending Zone Approval',
         ])
-        . '<p>' . (setting('require_institution_approval', '1') === '1'
-            ? 'You will be able to sign in once the Sahodaya secretariat verifies and approves your request.'
-            : 'You can now sign in using the coordinator email ID and the password you created.') . '</p>';
+        . '<p>' . ($inst['status'] === 'approved'
+            ? 'You can now sign in using the coordinator email ID and the password you created.'
+            : 'You will be able to sign in once the Sahodaya secretariat verifies and approves your request.') . '</p>';
     send_mail(institution_emails($inst), 'Participation Request Received - ' . $inst['ref_no'], $body);
 }
 

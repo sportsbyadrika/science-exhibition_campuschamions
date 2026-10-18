@@ -62,7 +62,11 @@ $hidden = fn (string $action, array $extra = []) => csrf_field() . '<input type=
       <?php foreach ([
           'Head of Institution' => $inst['head_name'] . ' (' . $inst['head_designation'] . ') • ' . $inst['head_phone'] . ' • ' . $inst['head_email'],
           'Coordinator (e-Admin)' => $inst['coord_name'] . ' (' . $inst['coord_designation'] . ') • ' . $inst['coord_phone'] . ' • ' . $inst['coord_email'],
-          'Approval' => $inst['approved_at'] ? 'Approved on ' . fmt_datetime($inst['approved_at']) : ($inst['status_remarks'] ?: '—'),
+          'Approval' => match ($inst['status']) {
+              'approved' => ($inst['approved_by'] ? 'Approved' : 'Auto-approved') . ' on ' . fmt_datetime($inst['approved_at']),
+              'rejected' => 'Rejected' . ($inst['status_remarks'] ? ' – ' . $inst['status_remarks'] : ''),
+              default => 'Pending approval',
+          },
           'Final Submission' => $inst['submitted_at'] ? fmt_datetime($inst['submitted_at']) . ' • ' . $inst['submission_ref'] : 'Not submitted',
       ] as $k => $v): ?>
         <div class="grid grid-cols-3 gap-3 px-5 py-3"><dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]"><?= e($k) ?></dt><dd class="col-span-2 font-semibold text-slate-800 break-words"><?= e($v) ?></dd></div>

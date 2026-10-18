@@ -37,6 +37,14 @@ $rows = db_all(
 $pageTitle = 'Institutions';
 require __DIR__ . '/../includes/layout/app_header.php';
 ?>
+<div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border px-4 py-3 text-xs <?= auto_approve_institutions() ? 'bg-cyan-50 border-cyan-200 text-cyan-900' : 'bg-amber-50 border-amber-200 text-amber-900' ?>">
+  <span class="flex items-center gap-2"><?= icon(auto_approve_institutions() ? 'zap' : 'hand', 'w-4 h-4') ?>
+    <?= auto_approve_institutions()
+        ? '<strong>Auto-approval is ON.</strong> New participation requests are approved immediately. Use <strong>Reject</strong> to revoke an institution\'s access at any time (it is signed out at once and notified by email).'
+        : '<strong>Auto-approval is OFF.</strong> New participation requests wait here for manual approval.' ?>
+  </span>
+  <a href="<?= url('admin/settings') ?>" class="font-semibold underline whitespace-nowrap">Change in Settings</a>
+</div>
 <div class="card overflow-hidden">
   <div class="card-head">
     <div>
@@ -65,7 +73,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
           <td><?= e($r['head_name']) ?><span class="block text-[11px] text-slate-400"><?= e($r['head_phone']) ?></span></td>
           <td class="text-right font-bold"><?= (int) $r['teams'] ?></td>
           <td class="text-right"><?= inr($r['paid']) ?></td>
-          <td class="space-y-1"><?= status_badge($r['status']) ?><br><?= status_badge($r['submission_status']) ?></td>
+          <td class="space-y-1"><?= status_badge($r['status']) ?><?php if ($r['status'] === 'approved' && !$r['approved_by']): ?><span class="block text-[10px] text-cyan-700 font-semibold">Auto-approved</span><?php elseif ($r['status'] === 'rejected' && $r['status_remarks']): ?><span class="block text-[10px] text-rose-600 max-w-[10rem] truncate" title="<?= e($r['status_remarks']) ?>"><?= e($r['status_remarks']) ?></span><?php endif; ?><br><?= status_badge($r['submission_status']) ?></td>
           <td class="text-right whitespace-nowrap">
             <div class="inline-flex gap-1">
               <?php if ($r['status'] !== 'approved'): ?>

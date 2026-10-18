@@ -14,7 +14,7 @@ $groups = [
     ],
     'Registration' => [
         'registration_open' => ['Registrations Open', 'bool'],
-        'require_institution_approval' => ['Institutions need admin approval before login', 'bool'],
+        'auto_approve_institutions' => ['Auto-approve participation requests (admins can still reject them later)', 'bool'],
         'registration_closes' => ['Registration Closes On', 'datetime-local'],
     ],
     'Notice & Support Desk' => [
@@ -86,7 +86,7 @@ require __DIR__ . '/../includes/layout/settings_tabs.php';
         <?php if (array_filter(array_keys($fields), 'setting_locked')): ?>
           <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">Some fields are set in the server's <span class="font-mono">.env</span> file and cannot be changed here.</p>
         <?php endif; ?>
-        <?php foreach ($fields as $key => [$label, $type]): $val = setting($key); $lock = setting_locked($key) ? ' disabled' : ''; ?>
+        <?php foreach ($fields as $key => [$label, $type]): $val = $key === 'auto_approve_institutions' ? (auto_approve_institutions() ? '1' : '0') : setting($key); $lock = setting_locked($key) ? ' disabled' : ''; ?>
           <?php if ($type === 'bool'): ?>
             <label class="flex items-center gap-2 text-xs font-semibold text-slate-700"><input type="checkbox" name="<?= e($key) ?>" value="1" <?= $val === '1' ? 'checked' : '' ?><?= $lock ?> class="rounded border-slate-300 text-cyan-600"><?= e($label) ?></label>
           <?php else: ?>

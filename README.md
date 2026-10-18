@@ -16,7 +16,7 @@ Page URLs never show the `.php` extension, for example `/register`, `/institutio
 ## Workflow
 
 1. A school submits a **Participation Request** (`/register`) with its own captcha. Emails go to the coordinator and the principal.
-2. An admin approves the request (**Institutions**). Approval can be switched off in Settings so schools can log in straight away.
+2. **Auto-approval** (default, Admin → Settings) approves the request immediately so the school can sign in at once. Admins can still **Reject** it from **Institutions** at any time. The school is signed out straight away and notified by email with the reason, and **Approve** restores access. With auto-approval switched off, requests wait for manual approval.
 3. The institution coordinator signs in with the coordinator email and password, then:
    * **Add Team Participant**: chooses an event and category, and adds students with a class and a cropped passport photo. Team size, allowed categories, the per-school limit and the fee all come from the Event master.
    * **Food Coupons**: enters a quantity for each coupon head (Breakfast, Lunch …) at the rate set by the admin.

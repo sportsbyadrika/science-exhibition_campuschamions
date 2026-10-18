@@ -80,6 +80,14 @@ function require_institution(): array
     if (!$inst) {
         abort(403);
     }
+    // A rejected (or no longer approved) institution loses access immediately, even mid-session
+    if ($inst['status'] === 'rejected' || ($inst['status'] === 'pending' && !auto_approve_institutions())) {
+        logout();
+        flash('error', $inst['status'] === 'rejected'
+            ? 'Your participation request has been rejected by the secretariat.' . ($inst['status_remarks'] ? ' Reason: ' . $inst['status_remarks'] : '')
+            : 'Your participation request is pending approval by the Sahodaya secretariat.');
+        redirect('');
+    }
     return [$user, $inst];
 }
 
@@ -101,7 +109,7 @@ function attempt_login(string $email, string $password): ?string
         if (!$inst || $inst['status'] === 'rejected') {
             return 'Your participation request was not approved.' . ($inst['status_remarks'] ?? '' ? ' Reason: ' . $inst['status_remarks'] : '');
         }
-        if ($inst['status'] === 'pending' && setting('require_institution_approval', '1') === '1') {
+        if ($inst['status'] === 'pending' && !auto_approve_institutions()) {
             return 'Your participation request is pending approval by the Sahodaya secretariat. You will receive an email once it is approved.';
         }
     }
@@ -124,6 +132,9 @@ function logout(): void
         setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
     }
     session_destroy();
+    // Start a fresh, empty session (new id + cookie) so a flash message can follow the sign-out
+    session_id(session_create_id());
+    session_start();
 }
 
 function password_problem(string $password, string $confirm): ?string

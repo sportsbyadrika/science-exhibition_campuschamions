@@ -72,17 +72,18 @@ if (is_post()) {
 
     if (!$errors) {
         $d['ref_no'] = 'CBSE-SZ-REQ-' . $d['affiliation_code'] . '-' . random_int(100, 999);
-        $autoApprove = setting('require_institution_approval', '1') !== '1';
+        $autoApprove = auto_approve_institutions();
         $pdo = db();
         $pdo->beginTransaction();
         try {
             db_exec(
                 'INSERT INTO institutions (ref_no, affiliation_code, name, head_name, head_designation, head_email, head_phone,
-                    coord_name, coord_designation, coord_email, coord_phone, status, approved_at)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                    coord_name, coord_designation, coord_email, coord_phone, status, status_remarks, approved_at)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 [$d['ref_no'], $d['affiliation_code'], $d['name'], $d['head_name'], $d['head_designation'], $d['head_email'], $d['head_phone'],
                  $d['coord_name'], $d['coord_designation'], $d['coord_email'], $d['coord_phone'],
-                 $autoApprove ? 'approved' : 'pending', $autoApprove ? date('Y-m-d H:i:s') : null]
+                 $autoApprove ? 'approved' : 'pending', $autoApprove ? 'Auto-approved on registration' : null,
+                 $autoApprove ? date('Y-m-d H:i:s') : null]
             );
             $instId = db_insert_id();
             db_exec(

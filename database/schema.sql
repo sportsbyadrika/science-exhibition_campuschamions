@@ -220,7 +220,7 @@ INSERT IGNORE INTO settings (setting_key, setting_value) VALUES
 ('event_venue',           'Trivandrum, Kerala'),
 ('registration_closes',   '2026-10-31 17:00'),
 ('registration_open',     '1'),
-('require_institution_approval', '1'),
+('auto_approve_institutions', '1'),
 ('support_phone',         '+91 471 278 9901'),
 ('support_email',         'sciencefair@sahodayasouth.org'),
 ('notice_text',           'Participation Requests open exclusively for CBSE Affiliated Schools in the Southern Region. Keep Affiliation Code handy.'),
