@@ -237,11 +237,11 @@ function notify_registration(array $inst): void
             'Head of Institution' => $inst['head_name'] . ' (' . $inst['head_designation'] . ')',
             'Coordinator (e-Admin)' => $inst['coord_name'],
             'Login ID' => $inst['coord_email'],
-            'Status' => $inst['status'] === 'approved' ? 'Approved' : 'Pending Zone Approval',
+            'Status' => $inst['status'] === 'approved' ? 'Approved' : 'Pending Event Admin Approval',
         ])
         . '<p>' . ($inst['status'] === 'approved'
             ? 'You can now sign in using the coordinator email ID and the password you created.'
-            : 'You will be able to sign in once the Sahodaya secretariat verifies and approves your request.') . '</p>';
+            : 'You will be able to sign in once the Event Admin verifies and approves your request.') . '</p>';
     send_mail(institution_emails($inst), 'Participation Request Received - ' . $inst['ref_no'], $body);
 }
 

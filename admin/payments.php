@@ -35,7 +35,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
 ?>
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
   <?= stat_card('Fund Received', inr($tot['received']), 'wallet-cards', 'cyan', 'All fund transfer submissions') ?>
-  <?= stat_card('Approved', inr($tot['approved']), 'badge-check', 'emerald', 'Verified by secretariat', 'text-emerald-700') ?>
+  <?= stat_card('Approved', inr($tot['approved']), 'badge-check', 'emerald', 'Verified by Event Admin', 'text-emerald-700') ?>
   <?= stat_card('Pending', inr($tot['pending']), 'hourglass', 'amber', 'Awaiting verification') ?>
   <?= stat_card('Rejected', inr($tot['rejected']), 'ban', 'rose', 'Returned to institution') ?>
 </div>

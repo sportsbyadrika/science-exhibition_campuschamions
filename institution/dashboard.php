@@ -59,7 +59,7 @@ $ps = $summary['pay_status'];
     <?php if (institution_locked($inst)): ?>
       <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-xs text-emerald-900 flex items-start gap-2">
         <?= icon('badge-check', 'w-4 h-4 mt-0.5') ?>
-        <span>Application finally submitted on <strong><?= e(fmt_datetime($inst['submitted_at'])) ?></strong> (Ref: <span class="font-mono font-bold"><?= e($inst['submission_ref']) ?></span>). Entries are locked; contact the secretariat for changes.</span>
+        <span>Application finally submitted on <strong><?= e(fmt_datetime($inst['submitted_at'])) ?></strong> (Ref: <span class="font-mono font-bold"><?= e($inst['submission_ref']) ?></span>). Entries are locked; contact the Event Admin for changes.</span>
       </div>
     <?php endif; ?>
   </div>

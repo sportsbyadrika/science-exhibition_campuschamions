@@ -144,7 +144,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
           <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-700 mb-3">Institution</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="sm:col-span-2"><label class="form-label">Name of Institution *</label><input name="name" required maxlength="255" value="<?= $v('name') ?>" class="form-input"></div>
-            <div><label class="form-label">Affiliation Code</label><input value="<?= e($inst['affiliation_code']) ?>" disabled class="form-input font-mono"><p class="form-hint">Contact the secretariat to change the affiliation code.</p></div>
+            <div><label class="form-label">Affiliation Code</label><input value="<?= e($inst['affiliation_code']) ?>" disabled class="form-input font-mono"><p class="form-hint">Contact the Event Admin to change the affiliation code.</p></div>
             <div><label class="form-label">District</label><input name="district" maxlength="100" value="<?= $v('district') ?>" class="form-input"></div>
             <div class="sm:col-span-2"><label class="form-label">Address</label><input name="address" maxlength="255" value="<?= $v('address') ?>" class="form-input"></div>
           </div>

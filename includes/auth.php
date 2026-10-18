@@ -84,8 +84,8 @@ function require_institution(): array
     if ($inst['status'] === 'rejected' || ($inst['status'] === 'pending' && !auto_approve_institutions())) {
         logout();
         flash('error', $inst['status'] === 'rejected'
-            ? 'Your participation request has been rejected by the secretariat.' . ($inst['status_remarks'] ? ' Reason: ' . $inst['status_remarks'] : '')
-            : 'Your participation request is pending approval by the Sahodaya secretariat.');
+            ? 'Your participation request has been rejected by the Event Admin.' . ($inst['status_remarks'] ? ' Reason: ' . $inst['status_remarks'] : '')
+            : 'Your participation request is pending approval by the Event Admin.');
         redirect('');
     }
     return [$user, $inst];
@@ -102,7 +102,7 @@ function attempt_login(string $email, string $password): ?string
         return 'Invalid login ID or password.';
     }
     if ($user['status'] !== 'active') {
-        return 'Your account has been deactivated. Please contact the event secretariat.';
+        return 'Your account has been deactivated. Please contact the Event Admin.';
     }
     if ($user['role'] === ROLE_INSTITUTION) {
         $inst = db_one('SELECT status, status_remarks FROM institutions WHERE id = ?', [$user['institution_id']]);
@@ -110,7 +110,7 @@ function attempt_login(string $email, string $password): ?string
             return 'Your participation request was not approved.' . ($inst['status_remarks'] ?? '' ? ' Reason: ' . $inst['status_remarks'] : '');
         }
         if ($inst['status'] === 'pending' && !auto_approve_institutions()) {
-            return 'Your participation request is pending approval by the Sahodaya secretariat. You will receive an email once it is approved.';
+            return 'Your participation request is pending approval by the Event Admin. You will receive an email once it is approved.';
         }
     }
     if (password_needs_rehash($user['password_hash'], PASSWORD_DEFAULT)) {

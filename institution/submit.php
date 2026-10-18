@@ -41,7 +41,7 @@ if (is_post()) {
                 'Total Payable' => inr($summary['payable']),
                 'Fund Transfers Submitted' => inr($summary['paid_submitted']),
             ])
-            . '<p>The application summary is attached for your records. The secretariat will verify the team entries and fund transfer details.</p>';
+            . '<p>The application summary is attached for your records. The Event Admin will verify the team entries and fund transfer details.</p>';
         send_mail(institution_emails($inst), 'Application Submitted - ' . $ref, $body, [['name' => $r['filename'], 'data' => $pdf]]);
     } catch (Throwable $ex) {
         error_log('[submit-mail] ' . $ex->getMessage());

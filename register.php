@@ -142,7 +142,7 @@ if ($success): ?>
       <?php if ($success['status'] === 'approved'): ?>
         <span class="font-bold text-emerald-600 flex items-center"><?= icon('check-circle', 'w-3.5 h-3.5 inline mr-1') ?>Approved – you may sign in now</span>
       <?php else: ?>
-        <span class="font-bold text-amber-600 flex items-center"><?= icon('clock', 'w-3.5 h-3.5 inline mr-1') ?>Pending Zone Approval (Est. 24 hrs)</span>
+        <span class="font-bold text-amber-600 flex items-center"><?= icon('clock', 'w-3.5 h-3.5 inline mr-1') ?>Pending Event Admin Approval (Est. 24 hrs)</span>
       <?php endif; ?>
     </div>
   </div>
