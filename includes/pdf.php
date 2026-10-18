@@ -172,7 +172,8 @@ function pdf_logo_data_uri(): string
     if ($uri !== null) {
         return $uri;
     }
-    $custom = APP_ROOT . '/assets/img/logo.png';
+    $eventLogo = upload_path(setting('event_logo_path'));
+    $custom = $eventLogo ?: APP_ROOT . '/assets/img/logo.png';
     if (is_file($custom)) {
         return $uri = 'data:image/png;base64,' . base64_encode((string) file_get_contents($custom));
     }

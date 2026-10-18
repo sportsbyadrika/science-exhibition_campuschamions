@@ -47,9 +47,7 @@ require __DIR__ . '/head.php';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16 gap-3">
         <a href="<?= url(home_for($user)) ?>" class="flex items-center space-x-3 min-w-0">
-          <div class="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-cyan-500 to-teal-400 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-cyan-500/20">
-            <?= icon('atom', 'w-6 h-6') ?>
-          </div>
+          <?= brand_mark('dark') ?>
           <div class="min-w-0">
             <div class="flex items-center space-x-2">
               <span class="text-[10px] font-bold tracking-widest text-cyan-400 uppercase bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/60"><?= e($badge) ?></span>

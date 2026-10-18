@@ -51,9 +51,14 @@ require __DIR__ . '/includes/layout/public_header.php';
     </div>
 
     <div class="space-y-3">
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-        CBSE South Zone <span class="bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">Sahodaya Complex</span> Science Fair
-      </h2>
+      <div class="flex items-center gap-5">
+        <?php if ($heroLogo = event_logo_url()): ?>
+          <img src="<?= e($heroLogo) ?>" alt="Event logo" class="w-20 h-20 sm:w-28 sm:h-28 shrink-0 rounded-3xl bg-white object-contain p-2 border border-slate-200 shadow-lg shadow-cyan-900/10 ring-4 ring-cyan-50">
+        <?php endif; ?>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+          CBSE South Zone <span class="bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">Sahodaya Complex</span> Science Fair
+        </h2>
+      </div>
       <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
         A unified platform fostering scientific enquiry, sustainable tech inventions, and robotic prototypes across South Zone CBSE member schools.
       </p>

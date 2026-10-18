@@ -6,12 +6,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20 gap-3">
         <a href="<?= url('') ?>" class="flex items-center space-x-3 min-w-0">
-          <div class="w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-700 flex items-center justify-center text-white shadow-md shadow-cyan-900/10 ring-2 ring-cyan-100">
-            <?= icon('atom', 'w-7 h-7') ?>
-          </div>
+          <?= brand_mark('light') ?>
           <div class="min-w-0">
             <div class="flex items-center space-x-2">
-              <span class="text-xs font-bold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">Powered by SportsMIS.com</span>
+              <?= brand_badge() ?>
             </div>
             <h1 class="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight leading-snug truncate"><?= e(app_title()) ?></h1>
           </div>

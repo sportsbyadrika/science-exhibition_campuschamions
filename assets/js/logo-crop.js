@@ -26,7 +26,8 @@
   modal.querySelectorAll('[data-logo-close]').forEach((b) => b.addEventListener('click', close));
   document.getElementById('logoApply').addEventListener('click', () => {
     if (!cropper) return;
-    const dataUrl = cropper.getCroppedCanvas({ width: 400, height: 400, imageSmoothingQuality: 'high' }).toDataURL('image/png');
+    const size = Number(modal.dataset.size) || 400;
+    const dataUrl = cropper.getCroppedCanvas({ width: size, height: size, imageSmoothingQuality: 'high' }).toDataURL('image/png');
     document.getElementById('logoData').value = dataUrl;
     const prev = document.getElementById('logoPreview');
     prev.src = dataUrl; prev.classList.remove('hidden');

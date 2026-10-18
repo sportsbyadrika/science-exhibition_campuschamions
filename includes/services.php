@@ -5,6 +5,42 @@ declare(strict_types=1);
  * Domain helpers shared by the admin and institution modules
  * ------------------------------------------------------------------- */
 
+/** Public URL of the event logo uploaded in Settings ('' when none). */
+function event_logo_url(): string
+{
+    $path = setting('event_logo_path');
+    return $path !== '' && upload_path($path) ? url('event-logo', ['v' => substr(md5($path), 0, 8)]) : '';
+}
+
+/**
+ * Brand mark for headers: the event logo when uploaded, otherwise the default atom tile.
+ * $variant: 'light' (public header) or 'dark' (app header).
+ */
+function brand_mark(string $variant = 'light'): string
+{
+    $size = $variant === 'dark' ? 'w-10 h-10' : 'w-12 h-12';
+    if ($logo = event_logo_url()) {
+        return '<img src="' . e($logo) . '" alt="" class="' . $size . ' shrink-0 rounded-xl bg-white object-contain p-0.5 shadow-md ' . ($variant === 'dark' ? 'border border-slate-700' : 'ring-2 ring-cyan-100') . '">';
+    }
+    return $variant === 'dark'
+        ? '<div class="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-cyan-500 to-teal-400 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-cyan-500/20">' . icon('atom', 'w-6 h-6') . '</div>'
+        : '<div class="w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-700 flex items-center justify-center text-white shadow-md shadow-cyan-900/10 ring-2 ring-cyan-100">' . icon('atom', 'w-7 h-7') . '</div>';
+}
+
+/** Header badge ("Powered by ..."), optionally linked. Empty text hides it. */
+function brand_badge(): string
+{
+    $text = setting('brand_badge_text', 'Powered by SportsMIS.com');
+    if (strtolower(trim($text)) === 'none') {
+        return '';
+    }
+    $cls = 'text-xs font-bold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200';
+    $url = setting('brand_badge_url');
+    return $url !== '' && preg_match('#^https?://#i', $url)
+        ? '<a href="' . e($url) . '" target="_blank" rel="noopener" class="' . $cls . ' hover:bg-cyan-100">' . e($text) . '</a>'
+        : '<span class="' . $cls . '">' . e($text) . '</span>';
+}
+
 /** Product name shown in every header, footer and browser title. */
 function app_title(): string
 {

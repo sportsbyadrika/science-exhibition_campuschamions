@@ -11,6 +11,13 @@ $groups = [
         'event_host' => ['Host Chapter', 'text'],
         'event_venue' => ['Venue', 'text'],
     ],
+    'Header & Footer Branding' => [
+        'brand_badge_text' => ['Header Badge Text (type "none" to hide)', 'text'],
+        'brand_badge_url' => ['Header Badge Link (optional, https://…)', 'url'],
+        'footer_title' => ['Footer Title', 'text'],
+        'footer_tagline' => ['Footer Tagline (type "none" to hide)', 'text'],
+        'footer_copyright' => ['Footer Copyright Text (after © year)', 'text'],
+    ],
     'Registration' => [
         'registration_open' => ['Registrations Open', 'bool'],
         'auto_approve_institutions' => ['Auto-approve participation requests (admins can still reject them later)', 'bool'],
@@ -48,6 +55,25 @@ $groups = [
 
 if (is_post()) {
     verify_csrf();
+    if (input('action') === 'event_logo') {
+        try {
+            $path = save_data_url_image((string) ($_POST['logo_data'] ?? ''), 'logos', 3072, 'png');
+            delete_upload(setting('event_logo_path') ?: null);
+            save_setting('event_logo_path', $path);
+            log_activity('event_logo_updated');
+            flash('success', 'Event logo updated. It now appears in the headers, home page and PDF reports.');
+        } catch (RuntimeException $ex) {
+            flash('error', 'Event logo: ' . $ex->getMessage() . ' Please choose and crop the image again.');
+        }
+        redirect('admin/settings');
+    }
+    if (input('action') === 'remove_event_logo') {
+        delete_upload(setting('event_logo_path') ?: null);
+        save_setting('event_logo_path', '');
+        log_activity('event_logo_removed');
+        flash('success', 'Event logo removed. The default icon is shown again.');
+        redirect('admin/settings');
+    }
     if (input('action') === 'test_mail') {
         $err = null;
         $ok = send_mail([$me['email'] => $me['name']], 'Test Email', '<p>This is a test email from the Science Fair portal. Your SMTP settings are working.</p>', [], $err);
@@ -79,9 +105,34 @@ if (is_post()) {
 }
 
 $pageTitle = 'Settings';
+$extraHead = '<link rel="stylesheet" href="' . asset('vendor/cropper.min.css') . '">';
+$extraScripts = '<script src="' . asset('vendor/cropper.min.js') . '"></script><script src="' . asset('js/logo-crop.js') . '"></script>';
 require __DIR__ . '/../includes/layout/app_header.php';
 require __DIR__ . '/../includes/layout/settings_tabs.php';
+$eventLogo = event_logo_url();
 ?>
+<!-- Event logo (separate forms: upload is cropped in the browser) -->
+<div class="card p-6 mb-6 flex flex-col sm:flex-row sm:items-center gap-5">
+  <div class="w-28 h-28 shrink-0 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden">
+    <img id="logoPreview" src="<?= e($eventLogo) ?>" alt="" class="w-full h-full object-contain <?= $eventLogo ? '' : 'hidden' ?>">
+    <span id="logoPlaceholder" class="text-slate-400 text-[10px] text-center flex flex-col items-center <?= $eventLogo ? 'hidden' : '' ?>"><?= icon('image', 'w-7 h-7 mb-1') ?>No Logo</span>
+  </div>
+  <div class="flex-1 space-y-2">
+    <h3 class="card-title flex items-center"><?= icon('image', 'w-4 h-4 mr-2 text-cyan-700') ?>Event Logo</h3>
+    <p class="text-xs text-slate-500">Shown in the header of every page, beside the main heading on the home page, in PDF report headers and as the browser tab icon. Square crop; transparent PNG backgrounds are kept.</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <form method="post" id="logoForm">
+        <?= csrf_field() ?><input type="hidden" name="action" value="event_logo"><input type="hidden" name="logo_data" id="logoData">
+        <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp" class="hidden">
+        <button type="button" id="logoBtn" class="btn-primary btn-sm"><?= icon('crop', 'w-3.5 h-3.5') ?><?= $eventLogo ? 'Change Logo' : 'Upload &amp; Crop Logo' ?></button>
+      </form>
+      <?php if ($eventLogo): ?>
+        <form method="post" data-confirm="Remove the event logo?"><?= csrf_field() ?><input type="hidden" name="action" value="remove_event_logo"><button class="btn-light btn-sm !text-rose-600"><?= icon('trash-2', 'w-3.5 h-3.5') ?>Remove</button></form>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>
+
 <form method="post" class="space-y-6">
   <?= csrf_field() ?>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -97,7 +148,11 @@ require __DIR__ . '/../includes/layout/settings_tabs.php';
         <?php if (array_filter(array_keys($fields), 'setting_locked')): ?>
           <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">Some fields are set in the server's <span class="font-mono">.env</span> file and cannot be changed here.</p>
         <?php endif; ?>
-        <?php foreach ($fields as $key => [$label, $type]): $val = match ($key) { 'auto_approve_institutions' => auto_approve_institutions() ? '1' : '0', 'suite_title' => app_title(), 'notify_admin_registration', 'notify_admin_payment', 'notify_admin_submission' => admin_notification_enabled($key) ? '1' : '0', default => setting($key) }; $lock = setting_locked($key) ? ' disabled' : ''; ?>
+        <?php foreach ($fields as $key => [$label, $type]): $val = match ($key) { 'auto_approve_institutions' => auto_approve_institutions() ? '1' : '0', 'suite_title' => app_title(),
+            'brand_badge_text' => setting($key, 'Powered by SportsMIS.com'),
+            'footer_title' => setting($key, setting('organisation_name', 'CBSE South Zone Sahodaya Complex') . ' Science Fair'),
+            'footer_tagline' => setting($key, 'Official Secretariat'),
+            'footer_copyright' => setting($key, app_title()), 'notify_admin_registration', 'notify_admin_payment', 'notify_admin_submission' => admin_notification_enabled($key) ? '1' : '0', default => setting($key) }; $lock = setting_locked($key) ? ' disabled' : ''; ?>
           <?php if ($type === 'bool'): ?>
             <label class="flex items-center gap-2 text-xs font-semibold text-slate-700"><input type="checkbox" name="<?= e($key) ?>" value="1" <?= $val === '1' ? 'checked' : '' ?><?= $lock ?> class="rounded border-slate-300 text-cyan-600"><?= e($label) ?></label>
           <?php else: ?>
@@ -125,4 +180,8 @@ require __DIR__ . '/../includes/layout/settings_tabs.php';
     <button type="submit" class="btn-primary"><?= icon('save') ?>Save Settings</button>
   </div>
 </form>
-<?php require __DIR__ . '/../includes/layout/app_footer.php';
+<?php
+$cropTitle = 'Crop Event Logo';
+$cropSize = 512;
+require __DIR__ . '/../includes/partials/logo_crop_modal.php';
+require __DIR__ . '/../includes/layout/app_footer.php';
