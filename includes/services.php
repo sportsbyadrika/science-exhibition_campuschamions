@@ -245,6 +245,99 @@ function notify_registration(array $inst): void
     send_mail(institution_emails($inst), 'Participation Request Received - ' . $inst['ref_no'], $body);
 }
 
+/* ---------------------------------------------------------------------
+ * Admin notifications
+ * ------------------------------------------------------------------- */
+
+/** Admin notification switches (setting key => label); all are ON unless switched off in Settings. */
+function admin_notification_types(): array
+{
+    return [
+        'notify_admin_registration' => 'New school registration',
+        'notify_admin_payment'      => 'Fund transfer submitted',
+        'notify_admin_submission'   => 'Final application submitted',
+    ];
+}
+
+function admin_notification_enabled(string $key): bool
+{
+    return setting($key, '1') === '1';
+}
+
+/**
+ * Recipients for admin notifications: the addresses in Settings > "Admin notification emails",
+ * or every active administrator when that field is empty (the hidden super admin is not included).
+ */
+function admin_notification_recipients(): array
+{
+    $list = array_filter(array_map('trim', preg_split('/[,;\s]+/', setting('admin_notify_emails'))), 'valid_email');
+    if ($list) {
+        return array_values(array_unique(array_map('mb_strtolower', $list)));
+    }
+    return array_column(db_all('SELECT email FROM users WHERE role = "admin" AND status = "active"'), 'email');
+}
+
+/** Send one admin notification if that type is enabled. Never throws. */
+function notify_admins(string $type, string $subject, string $bodyHtml, array $attachments = []): void
+{
+    try {
+        if (!admin_notification_enabled($type) || !($to = admin_notification_recipients())) {
+            return;
+        }
+        send_mail($to, '[Admin] ' . $subject, $bodyHtml, $attachments);
+    } catch (Throwable $ex) {
+        error_log('[notify_admins] ' . $ex->getMessage());
+    }
+}
+
+function notify_admins_registration(array $inst): void
+{
+    $body = '<p>A new participation request has been submitted.</p>'
+        . mail_table([
+            'Institution' => $inst['name'],
+            'Affiliation Code' => $inst['affiliation_code'],
+            'Reference ID' => $inst['ref_no'],
+            'Head of Institution' => $inst['head_name'] . ' (' . $inst['head_designation'] . ') • ' . $inst['head_phone'],
+            'Coordinator' => $inst['coord_name'] . ' • ' . $inst['coord_phone'] . ' • ' . $inst['coord_email'],
+            'Status' => $inst['status'] === 'approved' ? 'Auto-approved (you can still reject it)' : 'Pending Event Admin Approval',
+        ])
+        . '<p><a href="' . e(absolute_url('admin/institution', ['id' => $inst['id']])) . '" style="color:#0891b2;font-weight:bold">Review this institution</a></p>';
+    notify_admins('notify_admin_registration', 'New school registered - ' . $inst['name'], $body);
+}
+
+function notify_admins_payment(array $inst, array $payment): void
+{
+    $s = institution_summary((int) $inst['id']);
+    $body = '<p><strong>' . e($inst['name']) . '</strong> has submitted fund transfer details for verification.</p>'
+        . mail_table([
+            'Institution' => $inst['name'] . ' (Aff. ' . $inst['affiliation_code'] . ')',
+            'UTR / Reference' => $payment['utr_no'],
+            'Amount' => inr($payment['amount']),
+            'Transfer Date / Mode' => fmt_date($payment['payment_date']) . ' • ' . $payment['payment_mode'],
+            'Remitter Bank' => $payment['remitter_bank'] ?: '—',
+            'Total Payable' => inr($s['payable']),
+            'Total Submitted' => inr($s['paid_submitted']),
+        ])
+        . '<p><a href="' . e(absolute_url('admin/payments', ['status' => 'pending'])) . '" style="color:#0891b2;font-weight:bold">Verify fund transfers</a></p>';
+    notify_admins('notify_admin_payment', 'Fund transfer submitted - ' . $inst['name'] . ' - ' . inr($payment['amount']), $body);
+}
+
+function notify_admins_submission(array $inst, array $summary, array $attachments = []): void
+{
+    $body = '<p><strong>' . e($inst['name']) . '</strong> has made its final application submission.</p>'
+        . mail_table([
+            'Institution' => $inst['name'] . ' (Aff. ' . $inst['affiliation_code'] . ')',
+            'Submission Reference' => (string) $inst['submission_ref'],
+            'Team Entries' => (string) ($summary['teams_total'] - $summary['teams_rejected']) . ' (' . $summary['students'] . ' students)',
+            'Food Coupons' => $summary['food_qty'] . ' (' . inr($summary['food_amount']) . ')',
+            'Total Payable' => inr($summary['payable']),
+            'Fund Transfers Submitted' => inr($summary['paid_submitted']),
+        ])
+        . '<p>The application summary PDF is attached.</p>'
+        . '<p><a href="' . e(absolute_url('admin/institution', ['id' => $inst['id']])) . '" style="color:#0891b2;font-weight:bold">Review the application</a></p>';
+    notify_admins('notify_admin_submission', 'Final submission - ' . $inst['name'], $body, $attachments);
+}
+
 function notify_institution_status(array $inst): void
 {
     $approved = $inst['status'] === 'approved';

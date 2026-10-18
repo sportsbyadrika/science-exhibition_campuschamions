@@ -100,6 +100,7 @@ if (is_post()) {
         log_activity('institution_registered', $d['ref_no']);
         $inst = db_one('SELECT * FROM institutions WHERE id = ?', [$instId]);
         notify_registration($inst);
+        notify_admins_registration($inst);
         clear_old();
         $_SESSION['reg_success'] = $instId;
         redirect('register', ['done' => 1]);

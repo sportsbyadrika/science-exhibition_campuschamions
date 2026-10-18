@@ -43,6 +43,7 @@ if (is_post()) {
             ])
             . '<p>The application summary is attached for your records. The Event Admin will verify the team entries and fund transfer details.</p>';
         send_mail(institution_emails($inst), 'Application Submitted - ' . $ref, $body, [['name' => $r['filename'], 'data' => $pdf]]);
+        notify_admins_submission($inst, institution_summary((int) $inst['id']), [['name' => $r['filename'], 'data' => $pdf]]);
     } catch (Throwable $ex) {
         error_log('[submit-mail] ' . $ex->getMessage());
     }

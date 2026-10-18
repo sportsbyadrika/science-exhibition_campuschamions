@@ -28,6 +28,12 @@ $groups = [
         'bank_ifsc' => ['IFSC Code', 'text'],
         'bank_upi' => ['UPI ID', 'text'],
     ],
+    'Admin Email Notifications' => [
+        'admin_notify_emails' => ['Send admin notifications to (comma-separated emails; blank = all active administrators)', 'textarea'],
+        'notify_admin_registration' => ['Email admins when a new school registers', 'bool'],
+        'notify_admin_payment' => ['Email admins when a fund transfer is submitted', 'bool'],
+        'notify_admin_submission' => ['Email admins when a school makes its final submission (PDF attached)', 'bool'],
+    ],
     'Email (PHPMailer SMTP)' => [
         'mail_enabled' => ['Send Emails', 'bool'],
         'smtp_host' => ['SMTP Host (blank = PHP mail())', 'text'],
@@ -82,10 +88,16 @@ require __DIR__ . '/../includes/layout/settings_tabs.php';
     <?php foreach ($groups as $title => $fields): ?>
       <div class="card p-6 space-y-4 self-start">
         <h3 class="card-title"><?= e($title) ?></h3>
+        <?php if ($title === 'Admin Email Notifications'): $rcpt = admin_notification_recipients(); ?>
+          <p class="text-[11px] text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+            Currently sent to: <span class="font-mono"><?= $rcpt ? e(implode(', ', $rcpt)) : 'no recipients' ?></span>
+            <?php if (setting('mail_enabled', '0') !== '1'): ?><br><span class="text-amber-700 font-semibold">Email sending is switched off – enable "Send Emails" below.</span><?php endif; ?>
+          </p>
+        <?php endif; ?>
         <?php if (array_filter(array_keys($fields), 'setting_locked')): ?>
           <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">Some fields are set in the server's <span class="font-mono">.env</span> file and cannot be changed here.</p>
         <?php endif; ?>
-        <?php foreach ($fields as $key => [$label, $type]): $val = match ($key) { 'auto_approve_institutions' => auto_approve_institutions() ? '1' : '0', 'suite_title' => app_title(), default => setting($key) }; $lock = setting_locked($key) ? ' disabled' : ''; ?>
+        <?php foreach ($fields as $key => [$label, $type]): $val = match ($key) { 'auto_approve_institutions' => auto_approve_institutions() ? '1' : '0', 'suite_title' => app_title(), 'notify_admin_registration', 'notify_admin_payment', 'notify_admin_submission' => admin_notification_enabled($key) ? '1' : '0', default => setting($key) }; $lock = setting_locked($key) ? ' disabled' : ''; ?>
           <?php if ($type === 'bool'): ?>
             <label class="flex items-center gap-2 text-xs font-semibold text-slate-700"><input type="checkbox" name="<?= e($key) ?>" value="1" <?= $val === '1' ? 'checked' : '' ?><?= $lock ?> class="rounded border-slate-300 text-cyan-600"><?= e($label) ?></label>
           <?php else: ?>

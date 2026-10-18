@@ -64,6 +64,7 @@ if (is_post()) {
     );
     clear_old();
     log_activity('payment_submitted', $d['utr_no'] . ' ' . $d['amount']);
+    notify_admins_payment($inst, $d);
     flash('success', 'Fund transfer details recorded. The Event Admin will verify the remittance.');
     redirect(institution_locked($inst) ? 'institution/payments' : 'institution/submit');
 }
