@@ -6,6 +6,7 @@ const files = [
   ['node_modules/lucide/dist/umd/lucide.min.js', 'assets/vendor/lucide.min.js'],
   ['node_modules/cropperjs/dist/cropper.min.js', 'assets/vendor/cropper.min.js'],
   ['node_modules/cropperjs/dist/cropper.min.css', 'assets/vendor/cropper.min.css'],
+  ['node_modules/qrcode-generator/qrcode.js', 'assets/vendor/qrcode.js'],
 ];
 mkdirSync('assets/vendor', { recursive: true });
 for (const [from, to] of files) {

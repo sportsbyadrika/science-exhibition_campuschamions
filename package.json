@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "cropperjs": "^1.6.2",
-    "lucide": "^1.59.0"
+    "lucide": "^1.59.0",
+    "qrcode-generator": "^1.4.4"
   }
 }

@@ -34,6 +34,9 @@ $groups = [
         'bank_account_no' => ['Account Number', 'text'],
         'bank_ifsc' => ['IFSC Code', 'text'],
         'bank_upi' => ['UPI ID', 'text'],
+        'upi_qr_mode' => ['UPI QR Code on Fund Transfer page', ['auto' => 'Generate from UPI ID (amount pre-filled)', 'upload' => 'Show uploaded QR image (below)', 'off' => 'Do not show a QR code']],
+        'upi_payee_name' => ['UPI Payee Name (shown in the UPI app)', 'text'],
+        'upi_note' => ['UPI Payment Note (affiliation code is added)', 'text'],
     ],
     'Admin Email Notifications' => [
         'admin_notify_emails' => ['Send admin notifications to (comma-separated emails; blank = all active administrators)', 'textarea'],
@@ -65,6 +68,34 @@ if (is_post()) {
         } catch (RuntimeException $ex) {
             flash('error', 'Event logo: ' . $ex->getMessage() . ' Please choose and crop the image again.');
         }
+        redirect('admin/settings');
+    }
+    if (input('action') === 'upi_qr') {
+        try {
+            if (($_FILES['upi_qr']['type'] ?? '') === 'application/pdf') {
+                throw new RuntimeException('Please upload the QR code as a JPG or PNG image.');
+            }
+            $path = save_uploaded_file($_FILES['upi_qr'] ?? [], 'qr', 2048);
+            if (str_ends_with($path, '.pdf')) {
+                delete_upload($path);
+                throw new RuntimeException('Please upload the QR code as a JPG or PNG image.');
+            }
+            delete_upload(setting('upi_qr_path') ?: null);
+            save_setting('upi_qr_path', $path);
+            if (upi_qr_mode() === 'off') {
+                save_setting('upi_qr_mode', 'upload');
+            }
+            log_activity('upi_qr_updated');
+            flash('success', 'UPI QR code image uploaded.');
+        } catch (RuntimeException $ex) {
+            flash('error', 'UPI QR: ' . $ex->getMessage());
+        }
+        redirect('admin/settings');
+    }
+    if (input('action') === 'remove_upi_qr') {
+        delete_upload(setting('upi_qr_path') ?: null);
+        save_setting('upi_qr_path', '');
+        flash('success', 'Uploaded UPI QR code removed.');
         redirect('admin/settings');
     }
     if (input('action') === 'remove_event_logo') {
@@ -106,7 +137,8 @@ if (is_post()) {
 
 $pageTitle = 'Settings';
 $extraHead = '<link rel="stylesheet" href="' . asset('vendor/cropper.min.css') . '">';
-$extraScripts = '<script src="' . asset('vendor/cropper.min.js') . '"></script><script src="' . asset('js/logo-crop.js') . '"></script>';
+$extraScripts = '<script src="' . asset('vendor/cropper.min.js') . '"></script><script src="' . asset('js/logo-crop.js') . '"></script>'
+    . '<script src="' . asset('vendor/qrcode.js') . '"></script><script src="' . asset('js/upi-qr.js') . '"></script>';
 require __DIR__ . '/../includes/layout/app_header.php';
 require __DIR__ . '/../includes/layout/settings_tabs.php';
 $eventLogo = event_logo_url();
@@ -133,6 +165,41 @@ $eventLogo = event_logo_url();
   </div>
 </div>
 
+<!-- UPI QR code -->
+<?php $qrImg = upi_qr_image_url(); $qrMode = upi_qr_mode(); ?>
+<div class="card p-6 mb-6 flex flex-col sm:flex-row sm:items-center gap-5">
+  <div class="w-28 h-28 shrink-0 rounded-2xl border-2 border-dashed border-slate-300 bg-white flex items-center justify-center overflow-hidden p-1">
+    <?php if ($qrMode === 'auto' && setting('bank_upi') !== ''): ?>
+      <div id="settingsQr" class="w-full h-full [&_svg]:w-full [&_svg]:h-full" data-uri="<?= e(upi_pay_uri(0, setting('upi_note', 'Science Fair'))) ?>"></div>
+    <?php elseif ($qrImg): ?>
+      <img src="<?= e($qrImg) ?>" alt="UPI QR" class="w-full h-full object-contain">
+    <?php else: ?>
+      <span class="text-slate-400 text-[10px] text-center flex flex-col items-center"><?= icon('qr-code', 'w-7 h-7 mb-1') ?>No QR</span>
+    <?php endif; ?>
+  </div>
+  <div class="flex-1 space-y-2">
+    <h3 class="card-title flex items-center"><?= icon('qr-code', 'w-4 h-4 mr-2 text-cyan-700') ?>UPI QR Code</h3>
+    <p class="text-xs text-slate-500">
+      Current mode: <strong><?= e(['auto' => 'Generated from UPI ID ' . setting('bank_upi'), 'upload' => 'Uploaded QR image', 'off' => 'Not shown'][$qrMode]) ?></strong>.
+      Change the mode in <em>Bank Account</em> below. In <strong>generated</strong> mode each school's QR already contains its balance amount and affiliation code.
+      To use the QR from your bank / UPI app instead, upload it here.
+    </p>
+    <?php if ($qrMode === 'auto' && setting('bank_upi') === ''): ?><p class="text-xs text-amber-700 font-semibold">Enter the UPI ID in Bank Account below to generate the QR code.</p><?php endif; ?>
+    <?php if ($qrMode === 'upload' && !$qrImg): ?><p class="text-xs text-amber-700 font-semibold">Upload mode is selected but no QR image is uploaded yet.</p><?php endif; ?>
+    <div class="flex flex-wrap items-center gap-3">
+      <form method="post" enctype="multipart/form-data" class="flex items-center gap-2">
+        <?= csrf_field() ?><input type="hidden" name="action" value="upi_qr">
+        <label class="btn-light btn-sm cursor-pointer"><?= icon('upload', 'w-3.5 h-3.5') ?><?= $qrImg ? 'Replace QR Image' : 'Upload QR Image' ?>
+          <input type="file" name="upi_qr" accept="image/png,image/jpeg" class="hidden" onchange="this.form.submit()">
+        </label>
+      </form>
+      <?php if ($qrImg): ?>
+        <form method="post" data-confirm="Remove the uploaded QR image?"><?= csrf_field() ?><input type="hidden" name="action" value="remove_upi_qr"><button class="btn-light btn-sm !text-rose-600"><?= icon('trash-2', 'w-3.5 h-3.5') ?>Remove</button></form>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>
+
 <form method="post" class="space-y-6">
   <?= csrf_field() ?>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -149,6 +216,9 @@ $eventLogo = event_logo_url();
           <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">Some fields are set in the server's <span class="font-mono">.env</span> file and cannot be changed here.</p>
         <?php endif; ?>
         <?php foreach ($fields as $key => [$label, $type]): $val = match ($key) { 'auto_approve_institutions' => auto_approve_institutions() ? '1' : '0', 'suite_title' => app_title(),
+            'upi_qr_mode' => upi_qr_mode(),
+            'upi_payee_name' => setting($key, setting('bank_account_name')),
+            'upi_note' => setting($key, 'Science Fair'),
             'brand_badge_text' => setting($key, 'Powered by SportsMIS.com'),
             'footer_title' => setting($key, setting('organisation_name', 'CBSE South Zone Sahodaya Complex') . ' Science Fair'),
             'footer_tagline' => setting($key, 'Official Secretariat'),

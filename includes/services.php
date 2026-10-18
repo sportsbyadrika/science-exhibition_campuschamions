@@ -41,6 +41,30 @@ function brand_badge(): string
         : '<span class="' . $cls . '">' . e($text) . '</span>';
 }
 
+/** UPI QR mode for the Fund Transfer page: auto | upload | off (auto when a UPI ID exists). */
+function upi_qr_mode(): string
+{
+    $mode = setting('upi_qr_mode', setting('bank_upi') !== '' ? 'auto' : 'off');
+    return in_array($mode, ['auto', 'upload', 'off'], true) ? $mode : 'off';
+}
+
+/** URL of the uploaded UPI QR image ('' when none). Only visible to signed-in users. */
+function upi_qr_image_url(): string
+{
+    $path = setting('upi_qr_path');
+    return $path !== '' && upload_path($path) ? url('upi-qr', ['v' => substr(md5($path), 0, 8)]) : '';
+}
+
+/** UPI deep link (upi://pay?...) used for the generated QR and the "Pay with UPI app" button. */
+function upi_pay_uri(float $amount, string $note): string
+{
+    $q = ['pa' => setting('bank_upi'), 'pn' => setting('upi_payee_name', setting('bank_account_name', 'Science Fair')), 'cu' => 'INR', 'tn' => mb_substr($note, 0, 60)];
+    if ($amount > 0) {
+        $q['am'] = number_format($amount, 2, '.', '');
+    }
+    return 'upi://pay?' . str_replace('%40', '@', http_build_query($q, '', '&', PHP_QUERY_RFC3986));
+}
+
 /** Product name shown in every header, footer and browser title. */
 function app_title(): string
 {

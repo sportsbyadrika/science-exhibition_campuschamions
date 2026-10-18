@@ -72,6 +72,7 @@ if (is_post()) {
 $summary = institution_summary((int) $inst['id']);
 $payments = institution_payments((int) $inst['id']);
 $pageTitle = 'Fund Transfer';
+$extraScripts = '<script src="' . asset('vendor/qrcode.js') . '"></script><script src="' . asset('js/upi-qr.js') . '"></script>';
 require __DIR__ . '/../includes/layout/app_header.php';
 ?>
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -129,7 +130,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
       <?= csrf_field() ?>
       <div>
         <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-900/60 px-2 py-0.5 rounded border border-cyan-700/50">Official Bank Account</span>
-        <h3 class="text-base font-bold mt-1">NEFT / RTGS / IMPS Remittance</h3>
+        <h3 class="text-base font-bold mt-1">NEFT / RTGS / IMPS / UPI Remittance</h3>
       </div>
       <div class="bg-white/10 rounded-xl p-4 space-y-2 text-xs border border-white/10 font-mono">
         <?php foreach ([
@@ -143,6 +144,31 @@ require __DIR__ . '/../includes/layout/app_header.php';
         <?php endforeach; ?>
       </div>
 
+      <?php $qrMode = upi_qr_mode(); $qrImg = upi_qr_image_url(); $upiNote = trim(setting('upi_note', 'Science Fair') . ' ' . $inst['affiliation_code']); ?>
+      <?php if (($qrMode === 'auto' && setting('bank_upi') !== '') || ($qrMode === 'upload' && $qrImg)): ?>
+        <div class="bg-white text-slate-900 rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4">
+          <div class="w-40 h-40 shrink-0 rounded-lg border border-slate-200 p-1.5 bg-white">
+            <?php if ($qrMode === 'auto'): ?>
+              <div id="upiQr" class="w-full h-full [&_svg]:w-full [&_svg]:h-full" data-uri="<?= e(upi_pay_uri($summary['balance'], $upiNote)) ?>"></div>
+            <?php else: ?>
+              <img src="<?= e($qrImg) ?>" alt="UPI QR code" class="w-full h-full object-contain">
+            <?php endif; ?>
+          </div>
+          <div class="text-center sm:text-left space-y-1.5">
+            <span class="inline-flex items-center text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded"><?= icon('qr-code', 'w-3 h-3 mr-1') ?>Scan &amp; Pay by UPI</span>
+            <p class="text-xs text-slate-600">Scan with any UPI app (Google Pay, PhonePe, Paytm, BHIM).</p>
+            <?php if ($qrMode === 'auto'): ?>
+              <p class="text-sm font-black text-slate-900">Amount: <span id="upiAmountText"><?= inr($summary['balance'] > 0 ? $summary['balance'] : 0, true) ?></span></p>
+              <p class="text-[11px] text-slate-500">Note: <span class="font-mono"><?= e($upiNote) ?></span></p>
+              <a id="upiPayLink" href="<?= e(upi_pay_uri($summary['balance'], $upiNote)) ?>" class="sm:hidden inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg"><?= icon('smartphone', 'w-3.5 h-3.5') ?>Pay with UPI app</a>
+            <?php else: ?>
+              <p class="text-[11px] text-slate-500">Enter the amount in your UPI app and add <span class="font-mono font-bold"><?= e($upiNote) ?></span> as the note.</p>
+            <?php endif; ?>
+            <p class="text-[11px] text-amber-700 font-semibold">After paying, enter the UPI transaction ID (UTR) below.</p>
+          </div>
+        </div>
+      <?php endif; ?>
+
       <div class="space-y-3 pt-1">
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-slate-200 mb-1">Transaction Reference / UTR Number <span class="text-red-400">*</span></label>
@@ -151,7 +177,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-200 mb-1">Amount (₹) <span class="text-red-400">*</span></label>
-            <input type="number" name="amount" required min="1" step="0.01" value="<?= e(old('amount', $summary['balance'] > 0 ? (string) $summary['balance'] : '')) ?>" class="w-full px-3 py-2 text-xs rounded-lg bg-slate-800 border border-slate-700 text-white font-mono focus:ring-2 focus:ring-cyan-400 outline-none">
+            <input type="number" id="payAmount" name="amount" required min="1" step="0.01" value="<?= e(old('amount', $summary['balance'] > 0 ? (string) $summary['balance'] : '')) ?>" class="w-full px-3 py-2 text-xs rounded-lg bg-slate-800 border border-slate-700 text-white font-mono focus:ring-2 focus:ring-cyan-400 outline-none">
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-200 mb-1">Transfer Date <span class="text-red-400">*</span></label>
