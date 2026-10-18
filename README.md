@@ -29,7 +29,7 @@ Page URLs never show the `.php` extension, for example `/register`, `/institutio
 
 ```bash
 # 1. PHP dependencies (PHPMailer, Dompdf)
-composer install --no-dev
+composer install --no-dev   # only needed if you change composer.json; vendor/ is committed
 
 # 2. Configuration
 cp .env.example .env      # set APP_URL, DB_* and (optionally) MAIL_* values
@@ -64,7 +64,7 @@ All server-specific values are read from `.env` in the project root, next to `in
 `.cpanel.yml` runs `bin/deploy.sh`, which does the following:
 1. Copies the application files into the web root. It never overwrites `.env`, `vendor/`, `storage/uploads`, `storage/logs` or `storage/cache`, and it never deletes anything already in the web root.
 2. Creates the writable `storage/` folders.
-3. Runs `composer install --no-dev` with cPanel's PHP 8.x CLI (`/opt/cpanel/ea-php83` and similar) and `/opt/cpanel/composer/bin/composer`.
+3. Copies the committed `vendor/` folder (PHPMailer and Dompdf), so the server does not need Composer. Composer runs only as a fallback when `vendor/` is missing.
 4. If the web root has no `.env`, copies `.env.example` there (chmod 600) so you can edit it.
 
 First deployment:

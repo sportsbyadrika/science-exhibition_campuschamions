@@ -12,11 +12,11 @@ LOG="$DEST/storage/logs/deploy.log"
 echo "Deploying $REPO -> $DEST"
 mkdir -p "$DEST"
 
-# 1. Copy application files. Never touches: .env, uploads, logs, cache, vendor
-#    (vendor is rebuilt by composer below) or anything else already in the web root.
+# 1. Copy application files (including the committed vendor/ folder with PHPMailer
+#    and Dompdf). Never touches .env, uploads, logs, cache or anything else already in the web root.
 EXCLUDES=(
   --exclude=.git/ --exclude=.github/ --exclude=.cpanel.yml --exclude=.gitignore
-  --exclude=.env --exclude=node_modules/ --exclude=vendor/
+  --exclude=.env --exclude=node_modules/
   --exclude=storage/uploads/ --exclude=storage/logs/ --exclude=storage/cache/
   --exclude=router.php --exclude=assets/src/
 )
@@ -34,7 +34,8 @@ mkdir -p "$DEST/storage/uploads/photos" "$DEST/storage/uploads/payments" "$DEST/
 chmod -R u+rwX "$DEST/storage"
 cp -n "$REPO/storage/.htaccess" "$DEST/storage/.htaccess" 2>/dev/null || true
 
-# 3. PHP dependencies (PHPMailer, Dompdf). Prefer cPanel's PHP 8.3/8.2/8.1 CLI.
+# 3. PHP dependencies (PHPMailer, Dompdf) are committed in vendor/. Composer is only
+#    a fallback if vendor/ is missing. Prefer cPanel's PHP 8.3/8.2/8.1 CLI.
 PHP_BIN=""
 for p in /opt/cpanel/ea-php83/root/usr/bin/php /opt/cpanel/ea-php82/root/usr/bin/php /opt/cpanel/ea-php81/root/usr/bin/php "$(command -v php || true)"; do
   if [ -n "$p" ] && [ -x "$p" ]; then PHP_BIN="$p"; break; fi
@@ -44,7 +45,9 @@ for c in "$(command -v composer || true)" /opt/cpanel/composer/bin/composer /usr
   if [ -n "$c" ] && [ -f "$c" ]; then COMPOSER="$c"; break; fi
 done
 
-if [ -n "$PHP_BIN" ] && [ -n "$COMPOSER" ]; then
+if [ -f "$DEST/vendor/autoload.php" ]; then
+  echo "vendor/ deployed from the repository - composer not needed."
+elif [ -n "$PHP_BIN" ] && [ -n "$COMPOSER" ]; then
   echo "Running composer with $PHP_BIN"
   (cd "$DEST" && COMPOSER_ALLOW_SUPERUSER=1 "$PHP_BIN" "$COMPOSER" install \
       --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress)
