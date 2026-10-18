@@ -40,9 +40,3 @@ ErrorDocument 404 /404.php
 <FilesMatch "(^\.env.*|\.(sql|log|md|lock|ini|sh|yml))$">
   Require all denied
 </FilesMatch>
-
-# mod_php hosts: same upload limits as .user.ini
-<IfModule mod_php.c>
-  php_value upload_max_filesize 8M
-  php_value post_max_size 16M
-</IfModule>

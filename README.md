@@ -80,6 +80,23 @@ First deployment:
 
 For later releases, push to GitHub, then in cPanel click **Update from Remote** → **Deploy HEAD Commit**. The deploy log is in `storage/logs/deploy.log`.
 
+**No Terminal access?** Use the browser installer instead of step 4. Add `INSTALL_KEY=<long random secret>` to `.env` and open `https://<your-domain>/install`. Enter the key and create the super admin (and optionally the first administrator). Then remove `INSTALL_KEY` from `.env`. The installer turns itself off once a super admin exists.
+
+### Troubleshooting (HTTP 500 / setup page)
+
+The portal checks its set-up on every request and shows a **"setup required"** page that says what is wrong:
+
+| Message | Fix |
+|---------|-----|
+| needs PHP 8.1 or newer | cPanel → MultiPHP Manager → choose PHP 8.1–8.3 for the domain |
+| .env configuration file is missing | Copy `.env.example` to `.env` in the web root and fill it in |
+| vendor folder is missing | `composer install --no-dev` in the web root (or re-deploy) |
+| storage folder is not writable | `chmod -R 755 storage` |
+| Cannot connect to the database: … | Check `DB_*` in `.env`. On cPanel the DB and user names carry the account prefix (`sportsby_…`), and the user must be added to the DB with ALL PRIVILEGES |
+| database tables are not installed | Run the installer (`/install` or `bin/install.php`) |
+
+Every error is also logged to `storage/logs/php-error.log`. Set `APP_ENV=development` in `.env` temporarily to show the full error in the browser.
+
 ### Front-end assets
 
 The compiled Tailwind CSS (`assets/css/app.css`) and the browser libraries (`assets/vendor/`: Lucide icons, Cropper.js) are committed, so the server does not need Node. After you change markup or styles, run:
