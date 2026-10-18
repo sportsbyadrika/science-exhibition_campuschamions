@@ -8,7 +8,7 @@
         <span class="font-bold text-slate-800"><?= e(setting('organisation_name', 'CBSE South Zone Sahodaya Complex')) ?> Science Fair</span>
         <span>• Official Secretariat</span>
       </div>
-      <div><span>&copy; <?= date('Y') ?> Institutional Access Management Layer</span></div>
+      <div><span>&copy; <?= date('Y') ?> <?= e(app_title()) ?></span></div>
     </div>
   </footer>
 

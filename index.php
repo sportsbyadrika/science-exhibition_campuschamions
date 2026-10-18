@@ -108,6 +108,19 @@ require __DIR__ . '/includes/layout/public_header.php';
         <?= icon('sparkles', 'w-4 h-4 mr-2') ?>Participation Request
       </a>
     </div>
+
+    <div class="bg-white border border-amber-200 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
+      <div class="flex items-center gap-3 text-center sm:text-left">
+        <div class="hidden sm:flex p-2.5 bg-amber-50 rounded-xl text-amber-600"><?= icon('trophy', 'w-6 h-6') ?></div>
+        <div>
+          <p class="text-xs uppercase tracking-wider font-semibold text-amber-700">Public Results</p>
+          <h3 class="text-base font-bold text-slate-900"><?= setting('results_published', '0') === '1' ? 'Results are out! See the winning teams.' : 'Results will be announced here after the event.' ?></h3>
+        </div>
+      </div>
+      <a href="<?= url('results') ?>" class="whitespace-nowrap px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-xl transition duration-150 flex items-center shadow-md">
+        <?= icon('trophy', 'w-4 h-4 mr-2') ?>View Results
+      </a>
+    </div>
   </div>
 
   <!-- Right Column: Official Login Card (shown first on mobile) -->

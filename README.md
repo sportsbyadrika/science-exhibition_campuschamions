@@ -23,7 +23,8 @@ Page URLs never show the `.php` extension, for example `/register`, `/institutio
    * **Fund Transfer**: sees the bank details and records the UTR, amount, date and a receipt upload. More than one transfer is allowed.
    * **Final Submission**: works through a checklist and a declaration, then submits. This locks the entries and emails an acknowledgement with the application PDF attached.
 4. Admins approve or reject **team entries** (one at a time or in bulk) and **fund requests**. They can set an approved amount that differs from the claimed one. They can also reopen a submission.
-5. PDF reports for both roles all have a repeating header, a footer and `Page X of Y` numbering.
+5. **Results**: admins enter positions (First, Second, Third or Special Mention), a grade and remarks for approved teams under **Results**. Clicking **Publish** shows them on the public `/results` page, which is linked from the home page.
+6. PDF reports for both roles all have a repeating header, a footer and `Page X of Y` numbering.
 
 ## Installation
 
@@ -150,6 +151,10 @@ database/      schema.sql (tables + seed data)
 storage/       uploads (photos, receipts; served only through /media after an access check), logs, cache
 assets/        src/app.css (Tailwind source), css/app.css (built), js/, vendor/
 ```
+
+## Database upgrades
+
+New versions can add tables. `includes/migrations.php` upgrades an existing database automatically on the first request after a deploy, and the version is stored in `settings.schema_version`. No manual SQL is needed.
 
 ## Security notes
 

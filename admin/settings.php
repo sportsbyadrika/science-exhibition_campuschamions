@@ -5,9 +5,8 @@ $me = require_admin();
 $groups = [
     'Event & Branding' => [
         'organisation_name' => ['Organisation Name', 'text'],
-        'site_title' => ['Portal Title', 'text'],
+        'suite_title' => ['Application Title (all headers)', 'text'],
         'event_title' => ['Event Title', 'text'],
-        'event_year_label' => ['Year Badge', 'text'],
         'event_dates' => ['Event Dates (display)', 'text'],
         'event_host' => ['Host Chapter', 'text'],
         'event_venue' => ['Venue', 'text'],
@@ -86,7 +85,7 @@ require __DIR__ . '/../includes/layout/settings_tabs.php';
         <?php if (array_filter(array_keys($fields), 'setting_locked')): ?>
           <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">Some fields are set in the server's <span class="font-mono">.env</span> file and cannot be changed here.</p>
         <?php endif; ?>
-        <?php foreach ($fields as $key => [$label, $type]): $val = $key === 'auto_approve_institutions' ? (auto_approve_institutions() ? '1' : '0') : setting($key); $lock = setting_locked($key) ? ' disabled' : ''; ?>
+        <?php foreach ($fields as $key => [$label, $type]): $val = match ($key) { 'auto_approve_institutions' => auto_approve_institutions() ? '1' : '0', 'suite_title' => app_title(), default => setting($key) }; $lock = setting_locked($key) ? ' disabled' : ''; ?>
           <?php if ($type === 'bool'): ?>
             <label class="flex items-center gap-2 text-xs font-semibold text-slate-700"><input type="checkbox" name="<?= e($key) ?>" value="1" <?= $val === '1' ? 'checked' : '' ?><?= $lock ?> class="rounded border-slate-300 text-cyan-600"><?= e($label) ?></label>
           <?php else: ?>

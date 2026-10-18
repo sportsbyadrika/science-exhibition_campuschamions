@@ -22,13 +22,14 @@ if (is_post()) {
 }
 
 $teams = institution_teams((int) $inst['id']);
-$pageTitle = 'Registered Teams';
+$pageTitle = 'Registrations';
 require __DIR__ . '/../includes/layout/app_header.php';
+require __DIR__ . '/../includes/layout/registration_tabs.php';
 ?>
 <section class="space-y-6">
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
     <div>
-      <h2 class="text-lg font-bold text-slate-900">Enrolled Innovation Teams</h2>
+      <h2 class="text-lg font-bold text-slate-900">Registrations</h2>
       <p class="text-xs text-slate-500 mt-0.5">Manage teams registered for each event and category.</p>
     </div>
     <?php if (!$locked): ?>

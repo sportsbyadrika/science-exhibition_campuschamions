@@ -98,7 +98,7 @@ $locked = institution_locked($inst);
         <thead><tr><th>Team #</th><th>Category &amp; Event</th><th>Students (Class)</th><th>Status</th><th class="!text-right">Fee</th></tr></thead>
         <tbody>
           <?php if (!$teams): ?>
-            <tr><td colspan="5" class="py-4 text-center text-slate-400">No teams registered. Please use the 'Add Team Participant' tab first.</td></tr>
+            <tr><td colspan="5" class="py-4 text-center text-slate-400">No teams registered. Please use the 'Add Participants' tab first.</td></tr>
           <?php endif; ?>
           <?php foreach ($teams as $t): ?>
             <tr>

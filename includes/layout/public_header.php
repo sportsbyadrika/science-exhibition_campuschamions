@@ -11,10 +11,9 @@
           </div>
           <div class="min-w-0">
             <div class="flex items-center space-x-2">
-              <span class="text-xs font-bold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200"><?= e(setting('event_year_label', 'South Zone 2026-27')) ?></span>
-              <span class="hidden sm:inline text-xs font-semibold text-slate-500">CBSE Affiliated</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">Powered by SportsMIS.com</span>
             </div>
-            <h1 class="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight leading-snug truncate"><?= e(setting('site_title', 'Sahodaya Science Fair Registration Portal')) ?></h1>
+            <h1 class="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight leading-snug truncate"><?= e(app_title()) ?></h1>
           </div>
         </a>
 
@@ -23,6 +22,9 @@
             <?php if (setting('event_dates')): ?><span class="flex items-center"><?= icon('calendar', 'w-3.5 h-3.5 mr-1.5 text-cyan-600') ?>Event Date: <?= e(setting('event_dates')) ?></span><?php endif; ?>
             <?php if (setting('event_host')): ?><span class="flex items-center"><?= icon('map-pin', 'w-3.5 h-3.5 mr-1.5 text-teal-600') ?>Host: <?= e(setting('event_host')) ?></span><?php endif; ?>
           </div>
+          <a href="<?= url('results') ?>" class="px-3 sm:px-4 py-2 text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition duration-150 flex items-center shadow-sm">
+            <?= icon('trophy', 'w-3.5 h-3.5 sm:mr-1.5') ?><span class="hidden sm:inline">View Results</span>
+          </a>
           <a href="<?= url('') ?>" class="px-3 sm:px-4 py-2 text-xs font-semibold text-cyan-700 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 rounded-lg transition duration-150 flex items-center shadow-sm">
             <?= icon('log-in', 'w-3.5 h-3.5 sm:mr-1.5') ?><span class="hidden sm:inline">Official Sign In</span>
           </a>

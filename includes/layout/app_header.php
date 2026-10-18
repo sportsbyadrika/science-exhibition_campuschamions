@@ -14,6 +14,7 @@ if ($isAdmin) {
         ['admin/teams', 'Team Entries', 'users-2'],
         ['admin/payments', 'Fund Requests', 'wallet-cards'],
         ['admin/food-requests', 'Food Requests', 'utensils'],
+        ['admin/results', 'Results', 'trophy'],
         ['admin/reports', 'Reports', 'file-bar-chart'],
         ['admin/events', 'Masters', 'layers', ['admin/events', 'admin/event-form', 'admin/categories', 'admin/food-items']],
         ['admin/users', 'Users', 'user-cog'],
@@ -27,12 +28,11 @@ if ($isAdmin) {
     $sum = $summary ?? institution_summary((int) $inst['id']);
     $nav = [
         ['institution/dashboard', 'Dashboard', 'layout-dashboard'],
-        ['institution/teams', 'Registered Teams (' . $sum['teams_total'] . ')', 'users-2'],
-        ['institution/team-form', 'Add Team Participant', 'user-plus'],
+        ['institution/teams', 'Registrations (' . $sum['teams_total'] . ')', 'users-2', ['institution/teams', 'institution/reports']],
+        ['institution/team-form', 'Add Participants', 'user-plus'],
         ['institution/food-coupons', 'Food Coupons', 'utensils'],
         ['institution/payments', 'Fund Transfer', 'wallet-cards'],
         ['institution/submit', 'Final Submission', 'file-check'],
-        ['institution/reports', 'Reports', 'printer'],
     ];
     $badge = 'e-Admin Dashboard';
     $subLine = $inst['name'] . ' • Aff. #' . $inst['affiliation_code'];
@@ -55,7 +55,7 @@ require __DIR__ . '/head.php';
               <span class="text-[10px] font-bold tracking-widest text-cyan-400 uppercase bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/60"><?= e($badge) ?></span>
               <span class="hidden sm:inline text-[11px] text-slate-400"><?= e(setting('organisation_name', 'CBSE South Zone Sahodaya')) ?></span>
             </div>
-            <h1 class="text-sm sm:text-base font-bold text-white tracking-tight leading-tight truncate"><?= e(setting('event_title', 'Science Fair')) ?> Participation Suite</h1>
+            <h1 class="text-sm sm:text-base font-bold text-white tracking-tight leading-tight truncate"><?= e(app_title()) ?></h1>
           </div>
         </a>
 

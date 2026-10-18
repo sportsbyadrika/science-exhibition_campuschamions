@@ -5,6 +5,23 @@ declare(strict_types=1);
  * Domain helpers shared by the admin and institution modules
  * ------------------------------------------------------------------- */
 
+/** Product name shown in every header, footer and browser title. */
+function app_title(): string
+{
+    return setting('suite_title', 'Science Fair Management Suite');
+}
+
+/** Result positions (value => label). */
+function result_positions(): array
+{
+    return [1 => 'First', 2 => 'Second', 3 => 'Third', 4 => 'Special Mention'];
+}
+
+function result_grades(): array
+{
+    return ['A+', 'A', 'B', 'C'];
+}
+
 /** New participation requests are approved automatically (admins can still reject them later). */
 function auto_approve_institutions(): bool
 {

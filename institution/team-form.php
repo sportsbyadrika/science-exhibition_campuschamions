@@ -174,7 +174,7 @@ $jsConfig = [
     'classes' => array_map(fn ($m) => $m['class_name'] ?? '', $members),
 ];
 
-$pageTitle = $team && !empty($team['id']) ? 'Edit Team' : 'Add Team Participant';
+$pageTitle = $team && !empty($team['id']) ? 'Edit Team' : 'Add Participants';
 $extraHead = '<link rel="stylesheet" href="' . asset('vendor/cropper.min.css') . '">';
 $extraScripts = '<script src="' . asset('vendor/cropper.min.js') . '"></script>'
     . '<script>window.TEAM_FORM = ' . json_encode($jsConfig, JSON_HEX_TAG | JSON_HEX_AMP) . ';</script>'

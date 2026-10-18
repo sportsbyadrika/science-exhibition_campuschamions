@@ -13,6 +13,7 @@ function install_schema(): void
     foreach (array_filter(array_map('trim', explode(";\n", $sql))) as $statement) {
         db()->exec($statement);
     }
+    run_migrations(db());
 }
 
 function install_tables_exist(): bool

@@ -11,6 +11,7 @@ $reports = [
 ];
 $pageTitle = 'Reports';
 require __DIR__ . '/../includes/layout/app_header.php';
+require __DIR__ . '/../includes/layout/registration_tabs.php';
 ?>
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
   <?= stat_card('Teams', (string) $summary['teams_total'], 'boxes', 'cyan', $summary['teams_approved'] . ' approved • ' . $summary['teams_pending'] . ' pending') ?>

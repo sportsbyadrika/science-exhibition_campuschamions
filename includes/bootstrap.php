@@ -92,6 +92,7 @@ set_exception_handler(function (Throwable $e) {
 
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/migrations.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/captcha.php';
 require_once __DIR__ . '/mailer.php';

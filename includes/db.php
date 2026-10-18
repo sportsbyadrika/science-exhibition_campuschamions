@@ -25,6 +25,7 @@ function db(): PDO
             throw new AppSetupException('Cannot connect to the database: ' . $hint . '. Update the DB_* values in .env.');
         }
         $pdo->exec("SET time_zone = '" . date('P') . "'");
+        run_migrations($pdo);
     }
     return $pdo;
 }
