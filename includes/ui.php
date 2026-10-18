@@ -32,21 +32,31 @@ function tone_text(string $tone): string
     };
 }
 
+/**
+ * Flash messages as toasts in the top-right corner. They slide in, pause while hovered
+ * and close themselves (errors stay a little longer); assets/js/app.js handles timing.
+ */
 function render_flashes(): string
 {
-    $html = '';
-    foreach (take_flashes() as $f) {
-        [$cls, $ic] = match ($f['type']) {
-            'success' => ['bg-emerald-50 border-emerald-200 text-emerald-800', 'check-circle-2'],
-            'error' => ['bg-rose-50 border-rose-200 text-rose-800', 'alert-octagon'],
-            'warning' => ['bg-amber-50 border-amber-200 text-amber-800', 'alert-triangle'],
-            default => ['bg-cyan-50 border-cyan-200 text-cyan-800', 'info'],
-        };
-        $html .= '<div class="flash mb-4 flex items-start gap-2 border rounded-xl px-4 py-3 text-xs font-medium ' . $cls . '">'
-            . icon($ic, 'w-4 h-4 mt-0.5 shrink-0') . '<span class="flex-1">' . e($f['message']) . '</span>'
-            . '<button type="button" onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100">' . icon('x', 'w-3.5 h-3.5') . '</button></div>';
+    $flashes = take_flashes();
+    if (!$flashes) {
+        return '';
     }
-    return $html;
+    $html = '<div id="toastStack" class="fixed top-4 right-4 left-4 sm:left-auto z-[100] flex flex-col items-end gap-2 pointer-events-none" aria-live="polite">';
+    foreach ($flashes as $f) {
+        [$cls, $bar, $ic, $ms] = match ($f['type']) {
+            'success' => ['border-emerald-200 text-emerald-800', 'bg-emerald-500', 'check-circle-2', 4000],
+            'error' => ['border-rose-200 text-rose-800', 'bg-rose-500', 'alert-octagon', 8000],
+            'warning' => ['border-amber-200 text-amber-800', 'bg-amber-500', 'alert-triangle', 6000],
+            default => ['border-cyan-200 text-cyan-800', 'bg-cyan-500', 'info', 5000],
+        };
+        $html .= '<div class="toast pointer-events-auto relative w-full sm:w-80 overflow-hidden flex items-start gap-2 bg-white border rounded-xl shadow-lg shadow-slate-900/10 px-4 py-3 text-xs font-medium translate-x-[120%] opacity-0 transition-all duration-300 ' . $cls . '"'
+            . ' role="' . ($f['type'] === 'error' ? 'alert' : 'status') . '" data-timeout="' . $ms . '">'
+            . icon($ic, 'w-4 h-4 mt-0.5 shrink-0') . '<span class="flex-1 leading-snug">' . e($f['message']) . '</span>'
+            . '<button type="button" class="toast-close opacity-60 hover:opacity-100" aria-label="Close">' . icon('x', 'w-3.5 h-3.5') . '</button>'
+            . '<span class="toast-bar absolute bottom-0 left-0 h-0.5 w-full origin-left ' . $bar . '"></span></div>';
+    }
+    return $html . '</div>';
 }
 
 function stat_card(string $label, string $value, string $iconName, string $tone, string $hint = '', string $valueClass = 'text-slate-900'): string

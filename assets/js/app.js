@@ -26,6 +26,35 @@
     });
   });
 
+  // Toast notifications (flash messages): slide in, auto-close, pause on hover
+  document.querySelectorAll('#toastStack .toast').forEach(function (toast, i) {
+    const total = Number(toast.dataset.timeout) || 5000;
+    const bar = toast.querySelector('.toast-bar');
+    let remaining = total, started, timer;
+    const close = function () {
+      clearTimeout(timer);
+      toast.classList.add('translate-x-[120%]', 'opacity-0');
+      setTimeout(function () { toast.remove(); }, 300);
+    };
+    const run = function () {
+      started = Date.now();
+      timer = setTimeout(close, remaining);
+      if (bar) { bar.style.transition = 'transform ' + remaining + 'ms linear'; bar.style.transform = 'scaleX(0)'; }
+    };
+    const pause = function () {
+      clearTimeout(timer);
+      remaining -= Date.now() - started;
+      if (bar) { const s = getComputedStyle(bar).transform; bar.style.transition = 'none'; bar.style.transform = s === 'none' ? '' : s; }
+    };
+    setTimeout(function () {
+      toast.classList.remove('translate-x-[120%]', 'opacity-0');
+      run();
+    }, 60 + i * 120);
+    toast.addEventListener('mouseenter', pause);
+    toast.addEventListener('mouseleave', run);
+    toast.querySelector('.toast-close').addEventListener('click', close);
+  });
+
   // Refresh captcha images: <button data-captcha-refresh="#imgId">
   document.querySelectorAll('[data-captcha-refresh]').forEach(function (btn) {
     btn.addEventListener('click', function () {
