@@ -18,7 +18,7 @@ if ($isAdmin) {
         ['admin/reports', 'Reports', 'file-bar-chart'],
         ['admin/events', 'Masters', 'layers', ['admin/events', 'admin/event-form', 'admin/categories', 'admin/food-items']],
         ['admin/users', 'Users', 'user-cog'],
-        ['admin/settings', 'Settings', 'sliders', ['admin/settings', 'admin/activity']],
+        ['admin/settings', 'Settings', 'sliders', ['admin/settings', 'admin/activity', 'admin/cleanup']],
     ];
     $badge = is_superadmin($user) ? 'Super Admin' : 'Administrator';
     $subLine = setting('organisation_name', 'CBSE South Zone Sahodaya');
