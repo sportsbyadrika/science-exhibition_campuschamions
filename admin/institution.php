@@ -114,6 +114,7 @@ $hidden = fn (string $action, array $extra = []) => csrf_field() . '<input type=
           <td><?= status_badge($t['status']) ?><?php if ($t['remarks']): ?><span class="block text-[10px] text-slate-500"><?= e($t['remarks']) ?></span><?php endif; ?></td>
           <td class="text-right whitespace-nowrap">
             <div class="inline-flex gap-1">
+              <?= admin_modal_buttons('team-entry', (int) $t['id']) ?>
               <?php if ($t['status'] !== 'approved'): ?><form method="post"><?= $hidden('team_status', ['id' => $t['id'], 'status' => 'approved']) ?><button class="btn-success btn-sm" title="Approve"><?= icon('check', 'w-3.5 h-3.5') ?></button></form><?php endif; ?>
               <?php if ($t['status'] !== 'rejected'): ?><form method="post" data-prompt="Reason for rejection:"><?= $hidden('team_status', ['id' => $t['id'], 'status' => 'rejected', 'remarks' => '']) ?><button class="btn-danger btn-sm" title="Reject"><?= icon('x', 'w-3.5 h-3.5') ?></button></form><?php endif; ?>
             </div>

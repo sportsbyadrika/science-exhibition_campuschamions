@@ -13,6 +13,12 @@
 
   <script src="<?= asset('vendor/lucide.min.js') ?>"></script>
   <script src="<?= asset('js/app.js') ?>"></script>
+  <?php if (is_admin_role()): ?>
+    <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-start sm:items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
+      <div id="adminModalBox" class="bg-white rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl my-8"></div>
+    </div>
+    <script src="<?= asset('js/admin-modal.js') ?>"></script>
+  <?php endif; ?>
   <?= $extraScripts ?? '' ?>
 </body>
 </html>

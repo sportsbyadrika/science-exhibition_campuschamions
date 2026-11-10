@@ -56,14 +56,13 @@
     });
   }
 
-  // Suggested team name: "<Institution> <Category> - Team <n>" (only replaces an empty or previously suggested value)
+  // Suggested team name: "<Institution> - Team <n>" (n counts all of the school's teams; only
+  // replaces an empty or previously suggested value)
   const nameInput = document.getElementById('project_title');
   let lastSuggestion = '';
   function suggestName() {
-    const cat = findCat();
-    if (!cat || !nameInput) return;
-    const n = ((cfg.categoryTeamCounts || {})[cat.id] || 0) + 1;
-    const suggestion = cfg.institution + ' ' + cat.name + ' - Team ' + n;
+    if (!nameInput || !findCat()) return;
+    const suggestion = cfg.institution + ' - Team ' + ((cfg.schoolTeamCount || 0) + 1);
     const current = nameInput.value.trim();
     if (current === '' || current === lastSuggestion) nameInput.value = suggestion;
     lastSuggestion = suggestion;

@@ -59,6 +59,15 @@ function render_flashes(): string
     return $html . '</div>';
 }
 
+/** View + Edit buttons that open the admin modal ($type: team-entry | fund-transfer). */
+function admin_modal_buttons(string $type, int $id): string
+{
+    $return = (string) ($_SERVER['REQUEST_URI'] ?? '');
+    $btn = fn (string $mode, string $ic, string $title) => '<button type="button" class="btn-light btn-sm" title="' . $title . '" data-modal-url="'
+        . e(url('admin/' . $type, ['id' => $id, 'mode' => $mode, 'return' => $return])) . '">' . icon($ic, 'w-3.5 h-3.5') . '</button>';
+    return $btn('view', 'eye', 'View details') . $btn('edit', 'pencil', 'Edit');
+}
+
 function stat_card(string $label, string $value, string $iconName, string $tone, string $hint = '', string $valueClass = 'text-slate-900'): string
 {
     $iconCls = match ($tone) {

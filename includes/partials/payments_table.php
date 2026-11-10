@@ -24,6 +24,7 @@ $showInstitution ??= false;
         <td><?= status_badge($p['status']) ?><?php if ($p['remarks']): ?><span class="block text-[10px] text-slate-500 mt-0.5"><?= e($p['remarks']) ?></span><?php endif; ?></td>
         <td class="text-right whitespace-nowrap">
           <div class="inline-flex items-center gap-1">
+            <?= admin_modal_buttons('fund-transfer', (int) $p['id']) ?>
             <?php if ($p['status'] !== 'approved'): ?>
               <form method="post" class="inline-flex items-center gap-1" data-confirm="Approve this fund transfer?">
                 <?= csrf_field() ?><input type="hidden" name="action" value="payment_status"><input type="hidden" name="id" value="<?= (int) $p['id'] ?>"><input type="hidden" name="status" value="approved">

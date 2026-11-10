@@ -324,3 +324,63 @@ function abort(int $code, string $message = ''): never
     require APP_ROOT . '/includes/layout/error.php';
     exit;
 }
+
+/**
+ * Save an uploaded image as a passport-style JPEG (center-cropped to 3.5:4.5, 350x450).
+ * Used when an admin replaces a student photo without the browser cropper.
+ */
+function save_uploaded_photo(array $file, string $folder, int $maxKb): string
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('Photo upload failed.');
+    }
+    if ($file['size'] > $maxKb * 1024) {
+        throw new RuntimeException('Photo exceeds the maximum size of ' . round($maxKb / 1024, 1) . ' MB.');
+    }
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+    if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+        throw new RuntimeException('Student photos must be JPG, PNG or WEBP images.');
+    }
+    $src = @imagecreatefromstring((string) file_get_contents($file['tmp_name']));
+    if (!$src) {
+        throw new RuntimeException('Unable to read the photo.');
+    }
+    [$w, $h] = [imagesx($src), imagesy($src)];
+    $ratio = 350 / 450;
+    if ($w / $h > $ratio) {          // too wide: crop the sides
+        $cw = (int) round($h * $ratio); $ch = $h; $sx = (int) (($w - $cw) / 2); $sy = 0;
+    } else {                         // too tall: crop top/bottom (keep the upper part where the face is)
+        $cw = $w; $ch = (int) round($w / $ratio); $sx = 0; $sy = (int) (($h - $ch) / 4);
+    }
+    $dst = imagecreatetruecolor(350, 450);
+    imagefill($dst, 0, 0, imagecolorallocate($dst, 255, 255, 255));
+    imagecopyresampled($dst, $src, 0, 0, $sx, $sy, 350, 450, $cw, $ch);
+    $name = $folder . '/' . date('Y/m') . '/' . bin2hex(random_bytes(12)) . '.jpg';
+    $full = STORAGE_PATH . '/uploads/' . $name;
+    if (!is_dir(dirname($full))) {
+        mkdir(dirname($full), 0775, true);
+    }
+    imagejpeg($dst, $full, 88);
+    imagedestroy($src);
+    imagedestroy($dst);
+    return $name;
+}
+
+/** A same-site admin URL to return to after a modal form (falls back to $fallback). */
+function safe_return(string $fallback): string
+{
+    $ret = (string) ($_POST['return'] ?? $_GET['return'] ?? '');
+    $ret = rtrim((string) preg_replace('/([?&])modal=[^&]*(&|$)/', '$1', $ret), '?&'); // never re-open a modal after saving
+    $prefix = base_path() . '/admin/';
+    return ($ret !== '' && str_starts_with($ret, $prefix) && !preg_match('#[\r\n]|//#', substr($ret, 1))) ? $ret : url($fallback);
+}
+
+/** Redirect to a same-site path that already includes the base path (e.g. from safe_return()). */
+function redirect_to(string $path, array $query = []): never
+{
+    if ($query) {
+        $path .= (str_contains($path, '?') ? '&' : '?') . http_build_query($query);
+    }
+    header('Location: ' . $path);
+    exit;
+}

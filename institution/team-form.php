@@ -171,12 +171,9 @@ $jsConfig = [
     ], $events),
     'categories' => array_map(fn ($c) => ['id' => (int) $c['id'], 'name' => $c['name'], 'description' => (string) $c['description'], 'classes' => category_classes($c)], $categories),
     'selected' => ['event' => (int) ($team['event_id'] ?? 0), 'category' => (int) ($team['category_id'] ?? 0)],
-    // For the suggested team name "<Institution> <Category> - Team <n>"
+    // For the suggested team name "<Institution> - Team <n>"
     'institution' => $inst['name'],
-    'categoryTeamCounts' => array_map('intval', array_column(db_all(
-        'SELECT category_id, COUNT(*) n FROM teams WHERE institution_id = ? AND id <> ? GROUP BY category_id',
-        [$inst['id'], (int) ($team['id'] ?? 0)]
-    ), 'n', 'category_id')),
+    'schoolTeamCount' => (int) db_value('SELECT COUNT(*) FROM teams WHERE institution_id = ? AND id <> ?', [$inst['id'], (int) ($team['id'] ?? 0)]),
     'classes' => array_map(fn ($m) => $m['class_name'] ?? '', $members),
 ];
 
@@ -230,7 +227,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
           <div class="sm:col-span-2">
             <label class="form-label" for="project_title">Team Name <span class="text-red-500">*</span></label>
-            <input type="text" id="project_title" name="project_title" required maxlength="255" value="<?= e($team['project_title'] ?? '') ?>" placeholder="e.g., <?= e($inst['name']) ?> Category 1 - Team 1" class="form-input-sm font-medium">
+            <input type="text" id="project_title" name="project_title" required maxlength="255" value="<?= e($team['project_title'] ?? '') ?>" placeholder="e.g., <?= e($inst['name']) ?> - Team 1" class="form-input-sm font-medium">
             <p class="form-hint">Suggested automatically when you pick a category – you can edit it.</p>
           </div>
           <div>
