@@ -159,7 +159,7 @@ function pdf_badge(string $status): string
         'approved' => 'b-approved',
         'rejected' => 'b-rejected',
         'submitted' => 'b-submitted',
-        'pending', 'reopened' => 'b-pending',
+        'pending', 'reopened', 'returned' => 'b-pending',
         default => 'b-draft',
     };
     return '<span class="badge ' . $cls . '">' . e(ucfirst($status)) . '</span>';

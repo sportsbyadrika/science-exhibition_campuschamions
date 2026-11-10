@@ -151,6 +151,7 @@ function institution_summary(int $instId): array
                 SUM(status = "approved") approved,
                 SUM(status = "pending") pending,
                 SUM(status = "rejected") rejected,
+                SUM(status = "returned") returned,
                 COALESCE(SUM(CASE WHEN status <> "rejected" THEN fee ELSE 0 END), 0) fee
            FROM teams WHERE institution_id = ?',
         [$instId]
@@ -205,6 +206,7 @@ function institution_summary(int $instId): array
         'teams_approved' => (int) $teams['approved'],
         'teams_pending'  => (int) $teams['pending'],
         'teams_rejected' => (int) $teams['rejected'],
+        'teams_returned' => (int) $teams['returned'],
         'students'       => $students,
         'team_fee'       => $teamFee,
         'food_qty'       => (int) $food['qty'],
@@ -396,6 +398,20 @@ function notify_admins_submission(array $inst, array $summary, array $attachment
         . '<p>The application summary PDF is attached.</p>'
         . '<p><a href="' . e(absolute_url('admin/institution', ['id' => $inst['id']])) . '" style="color:#0891b2;font-weight:bold">Review the application</a></p>';
     notify_admins('notify_admin_submission', 'Final submission - ' . $inst['name'], $body, $attachments);
+}
+
+/** Email the institution that team entries were returned for correction. */
+function notify_team_returned(int $instId, array $teamCodes, string $reason): void
+{
+    $inst = db_one('SELECT * FROM institutions WHERE id = ?', [$instId]);
+    if (!$inst) {
+        return;
+    }
+    $body = '<p>Dear ' . e($inst['coord_name']) . ',</p>'
+        . '<p>The Event Admin has <strong>returned</strong> the following team entr' . (count($teamCodes) === 1 ? 'y' : 'ies') . ' of <strong>' . e($inst['name']) . '</strong> for correction:</p>'
+        . mail_table(['Team Code(s)' => implode(', ', $teamCodes), 'Correction Needed' => $reason])
+        . '<p>Please sign in, open <strong>Registrations</strong>, edit the returned entr' . (count($teamCodes) === 1 ? 'y' : 'ies') . ' and save to resubmit for approval.</p>';
+    send_mail(institution_emails($inst), 'Team Entry Returned for Correction - ' . implode(', ', $teamCodes), $body);
 }
 
 function notify_institution_status(array $inst): void

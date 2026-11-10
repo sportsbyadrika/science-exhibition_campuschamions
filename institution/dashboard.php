@@ -12,6 +12,12 @@ $pageTitle = 'Dashboard';
 require __DIR__ . '/../includes/layout/app_header.php';
 $ps = $summary['pay_status'];
 ?>
+<?php if ($summary['teams_returned'] > 0): ?>
+  <a href="<?= url('institution/teams') ?>" class="mb-6 flex items-center justify-between gap-3 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-xs text-violet-900 hover:border-violet-400">
+    <span class="flex items-center gap-2"><?= icon('corner-up-left', 'w-4 h-4') ?><strong><?= $summary['teams_returned'] ?> team entr<?= $summary['teams_returned'] === 1 ? 'y was' : 'ies were' ?> returned by the Event Admin for correction.</strong> Please edit and resubmit.</span>
+    <span class="font-bold whitespace-nowrap">Open Registrations →</span>
+  </a>
+<?php endif; ?>
 <!-- METRIC SUMMARY CARDS -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
   <?= stat_card('Registered Teams', (string) $summary['teams_total'], 'boxes', 'cyan', $summary['students'] . ' students • ' . $summary['teams_approved'] . ' approved') ?>

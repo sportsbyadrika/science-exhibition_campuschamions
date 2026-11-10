@@ -14,7 +14,7 @@ $categoryId = input_int('category_id');
 $q = (string) input('q');
 $where = ['1=1'];
 $params = [];
-if (in_array($status, ['pending', 'approved', 'rejected'], true)) { $where[] = 't.status = ?'; $params[] = $status; }
+if (in_array($status, ['pending', 'approved', 'rejected', 'returned'], true)) { $where[] = 't.status = ?'; $params[] = $status; }
 if ($eventId) { $where[] = 't.event_id = ?'; $params[] = $eventId; }
 if ($categoryId) { $where[] = 't.category_id = ?'; $params[] = $categoryId; }
 if ($q !== '') {
@@ -41,7 +41,7 @@ require __DIR__ . '/../includes/layout/app_header.php';
   <form class="flex flex-wrap gap-2 px-5 py-3 border-b border-slate-200 bg-slate-50">
     <select name="event_id" class="form-input-sm !w-auto"><?= select_options(array_column($events, 'name', 'id'), $eventId, true, 'All Events') ?></select>
     <select name="category_id" class="form-input-sm !w-auto"><?= select_options(array_column($cats, 'name', 'id'), $categoryId, true, 'All Categories') ?></select>
-    <select name="status" class="form-input-sm !w-auto"><?= select_options(['' => 'All Status', 'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'], $status) ?></select>
+    <select name="status" class="form-input-sm !w-auto"><?= select_options(['' => 'All Status', 'pending' => 'Pending', 'approved' => 'Approved', 'returned' => 'Returned to Institution', 'rejected' => 'Rejected'], $status) ?></select>
     <input type="search" name="q" value="<?= e($q) ?>" placeholder="Institution / team code / team name" class="form-input-sm !w-60">
     <button class="btn-dark btn-sm"><?= icon('filter', 'w-3.5 h-3.5') ?>Filter</button>
   </form>
@@ -54,6 +54,9 @@ require __DIR__ . '/../includes/layout/app_header.php';
       <span class="text-slate-500">With selected:</span>
       <button name="status" value="approved" class="btn-success btn-sm" onclick="return confirm('Approve selected team entries?')"><?= icon('check', 'w-3.5 h-3.5') ?>Approve</button>
       <button name="status" value="rejected" class="btn-danger btn-sm" onclick="var r = prompt('Reason for rejection:'); if (r === null) return false; this.form.remarks.value = r; return true;"><?= icon('x', 'w-3.5 h-3.5') ?>Reject</button>
+      <span class="h-5 w-px bg-slate-200 mx-1"></span>
+      <button name="status" value="cancel_approval" class="btn-light btn-sm !text-amber-700" onclick="var r = prompt('Cancel approval of the selected APPROVED entries? They go back to Pending.\n\nRemarks (optional):', ''); if (r === null) return false; this.form.remarks.value = r; return true;"><?= icon('undo-2', 'w-3.5 h-3.5') ?>Cancel Approval</button>
+      <button name="status" value="returned" class="btn-light btn-sm !text-violet-700" onclick="var r = prompt('Return the selected entries to the institution for correction.\nThe school can edit and resubmit them.\n\nCorrection needed (sent to the school):'); if (r === null) return false; if (!r.trim()) { alert('Please enter the correction needed.'); return false; } this.form.remarks.value = r; return true;"><?= icon('corner-up-left', 'w-3.5 h-3.5') ?>Return to Institution</button>
     </div>
     <div class="table-wrap">
       <table class="data-table">

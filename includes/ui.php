@@ -16,6 +16,7 @@ function status_badge(string $status): string
         'approved', 'active', 'submitted' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
         'pending', 'reopened' => 'bg-amber-50 text-amber-700 border-amber-200',
         'rejected', 'inactive' => 'bg-rose-50 text-rose-700 border-rose-200',
+        'returned' => 'bg-violet-50 text-violet-700 border-violet-200',
         default => 'bg-slate-100 text-slate-600 border-slate-200',
     };
     return '<span class="inline-flex items-center px-2 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wider ' . $tone . '">' . e($status) . '</span>';

@@ -117,6 +117,8 @@ $hidden = fn (string $action, array $extra = []) => csrf_field() . '<input type=
               <?= admin_modal_buttons('team-entry', (int) $t['id']) ?>
               <?php if ($t['status'] !== 'approved'): ?><form method="post"><?= $hidden('team_status', ['id' => $t['id'], 'status' => 'approved']) ?><button class="btn-success btn-sm" title="Approve"><?= icon('check', 'w-3.5 h-3.5') ?></button></form><?php endif; ?>
               <?php if ($t['status'] !== 'rejected'): ?><form method="post" data-prompt="Reason for rejection:"><?= $hidden('team_status', ['id' => $t['id'], 'status' => 'rejected', 'remarks' => '']) ?><button class="btn-danger btn-sm" title="Reject"><?= icon('x', 'w-3.5 h-3.5') ?></button></form><?php endif; ?>
+              <?php if ($t['status'] === 'approved'): ?><form method="post" data-prompt="Cancel this approval? The entry goes back to Pending. Remarks (optional):"><?= $hidden('team_status', ['id' => $t['id'], 'status' => 'cancel_approval', 'remarks' => '']) ?><button class="btn-light btn-sm !text-amber-700" title="Cancel approval"><?= icon('undo-2', 'w-3.5 h-3.5') ?></button></form><?php endif; ?>
+              <?php if ($t['status'] !== 'returned'): ?><form method="post" data-prompt="Return to the institution for correction. Correction needed (sent to the school):" data-prompt-required="1"><?= $hidden('team_status', ['id' => $t['id'], 'status' => 'returned', 'remarks' => '']) ?><button class="btn-light btn-sm !text-violet-700" title="Return to institution"><?= icon('corner-up-left', 'w-3.5 h-3.5') ?></button></form><?php endif; ?>
             </div>
           </td>
         </tr>

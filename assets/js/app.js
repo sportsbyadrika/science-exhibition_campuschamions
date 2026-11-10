@@ -10,6 +10,7 @@
       const field = form.querySelector('[name="' + (form.dataset.promptField || 'remarks') + '"]');
       const value = window.prompt(form.dataset.prompt, field ? field.value : '');
       if (value === null) { e.preventDefault(); return; }
+      if (form.dataset.promptRequired && !value.trim()) { e.preventDefault(); alert('Please enter a reason.'); return; }
       if (field) field.value = value;
     }
     if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) {

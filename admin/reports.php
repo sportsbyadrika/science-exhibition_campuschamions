@@ -40,7 +40,7 @@ $card = function (string $type, string $title, string $desc, string $ic, string 
   $card('teams', 'Team Entries with Photos', 'Filter by event, category and status. Includes student photographs.', 'users-2', 'bg-teal-50 text-teal-700',
       '<select name="event_id" class="form-input-sm !w-auto">' . select_options(array_column($events, 'name', 'id'), '', true, 'All Events') . '</select>'
       . '<select name="category_id" class="form-input-sm !w-auto">' . select_options(array_column($cats, 'name', 'id'), '', true, 'All Categories') . '</select>'
-      . '<select name="status" class="form-input-sm !w-auto">' . select_options($statusOpts, '') . '</select>');
+      . '<select name="status" class="form-input-sm !w-auto">' . select_options($statusOpts + ['returned' => 'Returned'], '') . '</select>');
   $card('food', 'Food Coupon Summary', 'Head-wise totals and institution-wise coupon matrix.', 'utensils', 'bg-amber-50 text-amber-700');
   ?>
 </div>

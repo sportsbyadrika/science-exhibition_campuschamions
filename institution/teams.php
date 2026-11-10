@@ -46,8 +46,11 @@ require __DIR__ . '/../includes/layout/registration_tabs.php';
     </div>
   <?php else: ?>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <?php foreach ($teams as $t): $editable = !$locked && $t['status'] !== 'approved'; ?>
-        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between space-y-4">
+      <?php foreach ($teams as $t):
+          $returned = $t['status'] === 'returned';
+          $editable = $returned || (!$locked && $t['status'] !== 'approved');
+          $removable = !$locked && $t['status'] !== 'approved'; ?>
+        <div class="bg-white border <?= $returned ? 'border-violet-300 ring-2 ring-violet-100' : 'border-slate-200' ?> rounded-xl p-5 shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div class="flex items-center justify-between border-b border-slate-100 pb-2 gap-2">
               <span class="font-mono text-xs font-black text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200"><?= e($t['team_code']) ?></span>
@@ -58,7 +61,12 @@ require __DIR__ . '/../includes/layout/registration_tabs.php';
               <p class="text-[11px] text-slate-500"><?= e($t['category_name']) ?></p>
               <?= status_badge($t['status']) ?>
             </div>
-            <?php if ($t['remarks']): ?><p class="text-[11px] text-rose-600 mt-1">Remarks: <?= e($t['remarks']) ?></p><?php endif; ?>
+            <?php if ($returned): ?>
+              <div class="mt-2 rounded-lg bg-violet-50 border border-violet-200 px-3 py-2 text-[11px] text-violet-900">
+                <span class="font-bold flex items-center"><?= icon('corner-up-left', 'w-3.5 h-3.5 mr-1') ?>Returned for correction</span>
+                <?= e($t['remarks'] ?: 'Please review and resubmit this entry.') ?>
+              </div>
+            <?php elseif ($t['remarks']): ?><p class="text-[11px] text-rose-600 mt-1">Remarks: <?= e($t['remarks']) ?></p><?php endif; ?>
             <div class="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-slate-100">
               <?php foreach ($t['members'] as $m): ?>
                 <div class="flex items-center space-x-2 min-w-0">
@@ -80,11 +88,17 @@ require __DIR__ . '/../includes/layout/registration_tabs.php';
             <span class="font-extrabold text-slate-700"><?= inr($t['fee']) ?></span>
             <?php if ($editable): ?>
               <div class="flex items-center gap-3">
-                <a href="<?= url('institution/team-form', ['id' => $t['id']]) ?>" class="text-cyan-700 hover:text-cyan-900 font-semibold flex items-center"><?= icon('pencil', 'w-3.5 h-3.5 mr-1') ?>Edit</a>
+                <?php if ($returned): ?>
+                  <a href="<?= url('institution/team-form', ['id' => $t['id']]) ?>" class="btn-primary btn-sm !bg-none !bg-violet-600 hover:!bg-violet-700"><?= icon('pencil', 'w-3.5 h-3.5') ?>Edit &amp; Resubmit</a>
+                <?php else: ?>
+                  <a href="<?= url('institution/team-form', ['id' => $t['id']]) ?>" class="text-cyan-700 hover:text-cyan-900 font-semibold flex items-center"><?= icon('pencil', 'w-3.5 h-3.5 mr-1') ?>Edit</a>
+                <?php endif; ?>
+                <?php if ($removable): ?>
                 <form method="post" data-confirm="Are you sure you want to remove this team entry?">
                   <?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="team_id" value="<?= (int) $t['id'] ?>">
                   <button type="submit" class="text-rose-600 hover:text-rose-800 font-semibold flex items-center"><?= icon('trash-2', 'w-3.5 h-3.5 mr-1') ?>Remove</button>
                 </form>
+                <?php endif; ?>
               </div>
             <?php else: ?>
               <span class="text-[11px] text-slate-400 flex items-center"><?= icon('lock', 'w-3 h-3 mr-1') ?>Locked</span>

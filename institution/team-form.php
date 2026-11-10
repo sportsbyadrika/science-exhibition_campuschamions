@@ -2,12 +2,17 @@
 require __DIR__ . '/../includes/bootstrap.php';
 [$user, $inst] = require_institution();
 
-if (institution_locked($inst)) {
+// A team returned by the Event Admin for correction stays editable even after final submission
+// or after registrations close; everything else follows the normal locks.
+$returnedTeam = ($rid = input_int('id'))
+    ? db_one('SELECT * FROM teams WHERE id = ? AND institution_id = ? AND status = "returned"', [$rid, $inst['id']])
+    : null;
+if (institution_locked($inst) && !$returnedTeam) {
     flash('warning', 'Your application has been finally submitted. Team entries are locked.');
     redirect('institution/teams');
 }
 
-$events = array_values(array_filter(active_events(), fn ($e) => (int) $e['registration_open'] === 1));
+$events = array_values(array_filter(active_events(), fn ($e) => (int) $e['registration_open'] === 1 || ($returnedTeam && (int) $e['id'] === (int) $returnedTeam['event_id'])));
 $categories = active_categories();
 $catById = array_column($categories, null, 'id');
 $evById = array_column($events, null, 'id');
@@ -39,7 +44,7 @@ if (is_post()) {
     $event = $evById[$eventId] ?? null;
     $category = $catById[$categoryId] ?? null;
 
-    if (!registration_is_open()) {
+    if (!registration_is_open() && !$returnedTeam) {
         $errors[] = 'Registrations are closed.';
     }
     if (!$event) {
@@ -142,8 +147,10 @@ if (is_post()) {
             }
             $pdo->commit();
             array_map('delete_upload', $oldFiles);
-            log_activity($team ? 'team_updated' : 'team_created', $code);
-            flash('success', 'Team ' . $code . ' saved successfully.');
+            log_activity($returnedTeam ? 'team_resubmitted' : ($team ? 'team_updated' : 'team_created'), $code);
+            flash('success', $returnedTeam
+                ? 'Team ' . $code . ' corrected and resubmitted to the Event Admin for approval.'
+                : 'Team ' . $code . ' saved successfully.');
             redirect('institution/teams');
         } catch (Throwable $ex) {
             $pdo->rollBack();

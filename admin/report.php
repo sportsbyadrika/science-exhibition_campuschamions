@@ -11,7 +11,7 @@ $r = match ((string) input('type')) {
     'funds' => report_funds(in_array($status, ['pending', 'approved', 'rejected'], true) ? $status : ''),
     'events' => report_event_participation(),
     'food' => report_food_summary(),
-    'teams' => report_all_teams(input_int('event_id'), input_int('category_id'), in_array($status, ['pending', 'approved', 'rejected'], true) ? $status : ''),
+    'teams' => report_all_teams(input_int('event_id'), input_int('category_id'), in_array($status, ['pending', 'approved', 'rejected', 'returned'], true) ? $status : ''),
     'application' => db_value('SELECT id FROM institutions WHERE id = ?', [input_int('id')]) ? report_institution_application(input_int('id')) : abort(404),
     default => abort(404),
 };

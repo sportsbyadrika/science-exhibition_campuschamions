@@ -7,6 +7,7 @@ $checks = [
     ['Institution registration approved', $inst['status'] === 'approved'],
     ['At least one team entry added', $summary['teams_total'] - $summary['teams_rejected'] > 0],
     ['Fund transfer details recorded for the total payable amount', $summary['payable'] > 0 && $summary['paid_submitted'] >= $summary['payable']],
+    ['No team entries waiting for correction', $summary['teams_returned'] === 0],
 ];
 $ready = !in_array(false, array_column($checks, 1), true);
 
@@ -121,7 +122,7 @@ $locked = institution_locked($inst);
       <span>Application submitted on <strong><?= e(fmt_datetime($inst['submitted_at'])) ?></strong>. Team entries and food coupons are now locked. You can still record additional fund transfers if a balance is due.</span>
     </div>
   <?php else: ?>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       <?php foreach ($checks as [$label, $ok]): ?>
         <div class="flex items-center gap-2 text-xs p-3 rounded-xl border <?= $ok ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-800' ?>">
           <?= icon($ok ? 'check-circle-2' : 'alert-circle', 'w-4 h-4 shrink-0') ?><span><?= e($label) ?></span>

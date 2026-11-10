@@ -34,11 +34,52 @@ function handle_admin_action(): bool
         case 'team_status':
             $ids = array_filter(array_map('intval', (array) ($_POST['ids'] ?? [input_int('id')])));
             $status = (string) input('status');
-            if (!$ids || !in_array($status, ['approved', 'rejected', 'pending'], true)) {
+            if (!$ids || !in_array($status, ['approved', 'rejected', 'pending', 'cancel_approval', 'returned'], true)) {
                 flash('error', 'Select at least one team entry.');
                 return true;
             }
             $in = implode(',', array_fill(0, count($ids), '?'));
+
+            if ($status === 'cancel_approval') {
+                // Only approved entries go back to pending
+                $n = db_exec(
+                    "UPDATE teams SET status = 'pending', remarks = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id IN ($in) AND status = 'approved'",
+                    array_merge([$remarks ?: 'Approval cancelled', $admin['id']], $ids)
+                )->rowCount();
+                log_activity('team_approval_cancelled', implode(',', $ids));
+                flash($n ? 'success' : 'warning', $n
+                    ? "Approval cancelled for $n team entr" . ($n === 1 ? 'y' : 'ies') . ' (now pending).'
+                    : 'None of the selected entries were approved.');
+                return true;
+            }
+
+            if ($status === 'returned') {
+                if ($remarks === '') {
+                    flash('error', 'Enter the reason / correction needed when returning a team entry.');
+                    return true;
+                }
+                $teams = db_all("SELECT id, institution_id, team_code FROM teams WHERE id IN ($in) AND status <> 'returned'", $ids);
+                if (!$teams) {
+                    flash('warning', 'The selected entries are already returned.');
+                    return true;
+                }
+                $tin = implode(',', array_fill(0, count($teams), '?'));
+                db_exec(
+                    "UPDATE teams SET status = 'returned', remarks = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id IN ($tin)",
+                    array_merge([$remarks, $admin['id']], array_column($teams, 'id'))
+                );
+                $byInst = [];
+                foreach ($teams as $t) {
+                    $byInst[$t['institution_id']][] = $t['team_code'];
+                }
+                foreach ($byInst as $instId => $codes) {
+                    notify_team_returned((int) $instId, $codes, $remarks);
+                }
+                log_activity('team_returned', implode(',', array_column($teams, 'team_code')) . ' - ' . $remarks);
+                flash('success', count($teams) . ' team entr' . (count($teams) === 1 ? 'y' : 'ies') . ' returned to the institution for correction.');
+                return true;
+            }
+
             db_exec(
                 "UPDATE teams SET status = ?, remarks = ?, reviewed_by = ?, reviewed_at = NOW() WHERE id IN ($in)",
                 array_merge([$status, $remarks ?: null, $admin['id']], $ids)

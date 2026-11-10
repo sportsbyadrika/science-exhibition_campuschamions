@@ -47,7 +47,8 @@ if (is_post()) {
     if (!$event) $errors[] = 'Select a valid event.';
     elseif (!$category || !in_array($categoryId, array_map('intval', $event['category_ids']), true)) $errors[] = 'The selected category is not allowed for this event.';
     if (mb_strlen($title) < 3) $errors[] = 'Enter the team name.';
-    if (!in_array($status, ['pending', 'approved', 'rejected'], true)) $errors[] = 'Select a valid status.';
+    if (!in_array($status, ['pending', 'approved', 'rejected', 'returned'], true)) $errors[] = 'Select a valid status.';
+    if ($status === 'returned' && trim((string) input('remarks')) === '') $errors[] = 'Enter the correction needed in Remarks when returning a team entry.';
     if ($fee < 0) $errors[] = 'Fee cannot be negative.';
 
     $posted = [];
@@ -209,7 +210,7 @@ header('Content-Type: text/html; charset=utf-8');
         <div class="sm:col-span-2"><label class="form-label">Team Name *</label><input name="project_title" required maxlength="255" value="<?= e($team['project_title']) ?>" class="form-input-sm"></div>
         <div><label class="form-label">Guide Teacher</label><input name="guide_teacher" maxlength="150" value="<?= e($team['guide_teacher'] ?? '') ?>" class="form-input-sm"></div>
         <div><label class="form-label">Fee (₹)</label><input type="number" step="0.01" min="0" name="fee" value="<?= e($team['fee']) ?>" class="form-input-sm"><p class="form-hint">Changing the event does not change the fee automatically.</p></div>
-        <div><label class="form-label">Status</label><select name="status" class="form-input-sm"><?= select_options(['pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'], $team['status']) ?></select></div>
+        <div><label class="form-label">Status</label><select name="status" class="form-input-sm"><?= select_options(['pending' => 'Pending', 'approved' => 'Approved', 'returned' => 'Returned to Institution', 'rejected' => 'Rejected'], $team['status']) ?></select></div>
         <div><label class="form-label">Remarks</label><input name="remarks" maxlength="255" value="<?= e($team['remarks'] ?? '') ?>" class="form-input-sm" placeholder="Optional"></div>
       </div>
       <div class="space-y-3">

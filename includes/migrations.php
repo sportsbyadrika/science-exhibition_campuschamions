@@ -25,6 +25,10 @@ const SCHEMA_MIGRATIONS = [
     2 => [
         ['add_column', 'institutions', 'logo_path', "VARCHAR(255) NULL AFTER name"],
     ],
+    3 => [
+        // "returned" = sent back to the institution for correction; it is resubmitted as "pending"
+        "ALTER TABLE teams MODIFY status ENUM('pending','approved','rejected','returned') NOT NULL DEFAULT 'pending'",
+    ],
 ];
 
 /** ALTER TABLE ... ADD COLUMN only when the column does not exist yet (keeps migrations re-runnable). */
